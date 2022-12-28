@@ -4,6 +4,10 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 require('dotenv').config();
 
+
+const userRoutes = require("./api/routes/user");
+
+
 // morgan to log in our dev environment
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
@@ -18,6 +22,9 @@ app.use((req, res, next) => {
   }
   next();
 })
+
+//Routes which should handle requests
+app.use("/user", userRoutes);
 
 // Error handling
 app.use((req, res, next)=>{
