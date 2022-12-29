@@ -4,8 +4,10 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 require('dotenv').config();
 
-
+//route
 const userRoutes = require("./api/routes/user");
+const cityRoutes = require("./api/routes/city");
+const hotelRoutes = require("./api/routes/hotel");
 
 
 // morgan to log in our dev environment
@@ -25,6 +27,8 @@ app.use((req, res, next) => {
 
 //Routes which should handle requests
 app.use("/user", userRoutes);
+app.use("/city", cityRoutes);
+app.use("/hotel", hotelRoutes);
 
 // Error handling
 app.use((req, res, next)=>{

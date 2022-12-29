@@ -1,18 +1,18 @@
 module.exports = class User {
 
-  id = null;
   name = null;
   email = null;
   password = null;
-  createdAt = null;
-  updatedAt = null;
+  is_admin = null;
+  created_at = null;
+  updated_at = null;
   
-  constructor({id, name, email, password, createdAt = new Date(), updatedAt = new Date()}) {
-    this.id = id;
+  constructor({name, email, password,is_admin, created_at, updated_at}) {
     this.name = name;
     this.email = email;
     this.password = password;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
+    this.is_admin = is_admin;
+    this.created_at = created_at;
+    this.updated_at = updated_at;
   }
 }
