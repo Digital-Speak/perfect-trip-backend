@@ -7,5 +7,6 @@ require("dotenv").config();
 router.post("/add", checkAuth, hotelController.addHotel);
 router.delete("/delete", checkAuth, hotelController.deleteHotel);
 router.put("/edit", checkAuth, hotelController.editHotel);
+router.get("/circuit_city_hotels", checkAuth, hotelController.getCircuitCityHotels);
 
 module.exports = router;

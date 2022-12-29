@@ -76,3 +76,48 @@ exports.editHotel = async (req, res, next) => {
     });
   }
 };
+
+exports.getCircuitCityHotels = async (req, res, next) => {
+  try {
+
+    const hotels = await knex
+        .distinct(
+          'hotel.name as hotelName',
+          'city.name as cityName',
+        )
+        .from('hotel')
+        .leftJoin('city', 'city.id', '=', 'hotel.city_id')
+        .leftJoin(
+          'circuit_city',
+          'circuit_city.city_id',
+          '=',
+          'city.id'
+        )
+        .leftJoin(
+          'circuit',
+          'circuit.id',
+          '=',
+          'circuit_city.circuit_id'
+        )
+        .where('circuit.id', '=', req.body.id)
+        .andWhere('hotel.stars', 'like', `%${req.body.cat}%`)
+        .groupBy(
+          'city.name',
+          'hotel.name'
+        ).orderBy('city.name', 'DESC');
+
+
+    // const hotels = await knex('hotel')
+    //   .where('id', req.body.id)
+    //   .select("*")
+      console.log(hotels);
+      res.status(200).json({
+        success:true,
+      }); 
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
