@@ -2,6 +2,8 @@ const User = require("../models/User");
 const knex = require('../../db');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const sendEmail = require('../../tools/mails/reservationMail');
+var sender = require("../../tools/mails/testMail");
 
 exports.login = async (req, res, next) => {
   try {
@@ -136,3 +138,12 @@ exports.delete_user = async (req, res, next) => {
     });
   }
 };
+
+// const data = {
+//   templateName: "test",
+//   sender: "",
+//   receiver: "", 
+//   name: "",
+  
+// };
+// sender.sendEmail(data);

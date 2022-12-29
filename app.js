@@ -8,6 +8,7 @@ require('dotenv').config();
 const userRoutes = require("./api/routes/user");
 const cityRoutes = require("./api/routes/city");
 const hotelRoutes = require("./api/routes/hotel");
+const agencyRoutes = require("./api/routes/agency");
 
 
 // morgan to log in our dev environment
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 app.use("/user", userRoutes);
 app.use("/city", cityRoutes);
 app.use("/hotel", hotelRoutes);
+app.use("/agency", agencyRoutes);
 
 // Error handling
 app.use((req, res, next)=>{

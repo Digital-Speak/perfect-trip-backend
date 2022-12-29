@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Digital-Speak/perfect-trip-backend#readme",
   "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
     "dotenv": "^16.0.3",
