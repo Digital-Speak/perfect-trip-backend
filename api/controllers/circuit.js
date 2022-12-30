@@ -1,23 +1,23 @@
-const Agency = require("../models/Agency");
+const Circuit = require("../models/Circuit");
 const knex = require('../../db');
 
-exports.addAgency = async (req, res, next) => {
+exports.addCircuit = async (req, res, next) => {
   try {
-    await knex('agency')
+    await knex('circuit')
       .where('name', req.body.name)
-      .select("*").then(async (agency) => {
-        if (agency.length !== 0) {
-          console.log('Agency already exist');
+      .select("*").then(async (circuit) => {
+        if (circuit.length !== 0) {
+          console.log('Circuit already exist');
           return res.status(500).json({
             success: false,
-            message: "Agency already exist",
+            message: "Circuit already exist",
           });
         } else {
-          const newAgency = new Agency({ name: req.body.name, created_at: new Date(), updated_at: new Date() });
-          await knex('agency').insert(newAgency).then(() => {
+          const newCircuit = new Circuit({ name: req.body.name, created_at: new Date(), updated_at: new Date() });
+          await knex('circuit').insert(newCircuit).then(() => {
             return res.status(200).json({
               success: true,
-              message: "Agency added successfully",
+              message: "Circuit added successfully",
             });
           });
         }
@@ -30,23 +30,23 @@ exports.addAgency = async (req, res, next) => {
   }
 };
 
-exports.deleteAgency = async (req, res, next) => {
+exports.deleteCircuit = async (req, res, next) => {
   try {
-    await knex('agency')
+    await knex('circuit')
       .where('id', req.body.id)
-      .select("*").then(async (agency) => {
-        if (agency.length === 0) {
+      .select("*").then(async (circuit) => {
+        if (circuit.length === 0) {
           return res.status(400).json({
             success: false,
-            message: "Agency does not exist"
+            message: "Circuit does not exist"
           });
         } else {
-          await knex('agency')
+          await knex('circuit')
             .where({ id: req.body.id })
             .del().then(() => {
               return res.status(200).json({
                 success: true,
-                message: "Agency deleted successfully"
+                message: "Circuit deleted successfully"
               });
             });
         }
@@ -59,24 +59,24 @@ exports.deleteAgency = async (req, res, next) => {
   }
 };
 
-exports.editAgency = async (req, res, next) => {
+exports.editCircuit = async (req, res, next) => {
   try {
-    await knex('agency')
+    await knex('circuit')
       .where('id', req.body.id)
-      .select("*").then(async (agency) => {
-        if (agency.length === 0) {
+      .select("*").then(async (circuit) => {
+        if (circuit.length === 0) {
           return res.status(400).json({
             success: false,
-            message: "Agency does not exist"
+            message: "Circuit does not exist"
           });
         } else {
-          const updatedAgency = new Agency({ name: req.body.name, updated_at: new Date() });
-          knex('agency')
+          const updatedCircuit = new Circuit({ name: req.body.name, updated_at: new Date() });
+          knex('circuit')
             .where({ id: req.body.id })
-            .update(updatedAgency).then(() => {
+            .update(updatedCircuit).then(() => {
               return res.status(200).json({
                 success: true,
-                message: "Agency updated successfully"
+                message: "Circuit updated successfully"
               });
             });
         }
@@ -89,19 +89,19 @@ exports.editAgency = async (req, res, next) => {
   }
 };
 
-exports.getAgencies = async (req, res, next) => {
+exports.getCircuits = async (req, res, next) => {
   try {
-    await knex('agency')
-      .select("*").then(async (agencies) => {
-        if (agencies.length === 0) {
+    await knex('circuit')
+      .select("*").then(async (circuits) => {
+        if (circuits.length === 0) {
           return res.status(400).json({
             success: false,
-            message: "there is no agency"
+            message: "there is no circuit"
           });
         } else {
           return res.status(200).json({
             success: true,
-            agencies
+            circuits
           });
         }
       })

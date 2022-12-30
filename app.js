@@ -6,9 +6,12 @@ require('dotenv').config();
 
 //route
 const userRoutes = require("./api/routes/user");
+const clientRoutes = require("./api/routes/client");
 const cityRoutes = require("./api/routes/city");
 const hotelRoutes = require("./api/routes/hotel");
 const agencyRoutes = require("./api/routes/agency");
+const dossierRoutes = require("./api/routes/dossier");
+const circuitRoutes = require("./api/routes/circuit");
 
 
 // morgan to log in our dev environment
@@ -28,9 +31,12 @@ app.use((req, res, next) => {
 
 //Routes which should handle requests
 app.use("/user", userRoutes);
+app.use("/client", clientRoutes);
 app.use("/city", cityRoutes);
 app.use("/hotel", hotelRoutes);
 app.use("/agency", agencyRoutes);
+app.use("/circuit", circuitRoutes);
+app.use("/dossier", dossierRoutes);
 
 // Error handling
 app.use((req, res, next)=>{

@@ -7,5 +7,6 @@ require("dotenv").config();
 router.post("/add", checkAuth, agencyController.addAgency);
 router.delete("/delete", checkAuth, agencyController.deleteAgency);
 router.put("/edit", checkAuth, agencyController.editAgency);
+router.get("/", checkAuth, agencyController.getAgencies);
 
 module.exports = router;

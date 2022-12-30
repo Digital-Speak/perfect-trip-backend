@@ -88,3 +88,27 @@ exports.editCity = async (req, res, next) => {
     });
   }
 };
+
+exports.getCities = async (req, res, next) => {
+  try {
+    await knex('city')
+      .select("*").then(async (cities) => {
+        if (cities.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "there is no cities"
+          });
+        } else {
+          return res.status(200).json({
+            success: true,
+            cities
+          });
+        }
+      })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
