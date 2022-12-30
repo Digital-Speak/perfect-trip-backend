@@ -84,6 +84,7 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'hotel.name as hotelName',
         'city.name as cityName',
         'circuit_city.number_of_nights as numberOfNights',
+        'city.id as cityId',
       )
       .from('hotel')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
@@ -105,7 +106,8 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'city.name',
         'hotel.name',
         'circuit_city.number_of_nights',
-      ).orderBy('city.name', 'DESC');
+        'city.id',
+      ).orderBy('city.id');
 
     return res.status(200).json({
       success: true,
