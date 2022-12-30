@@ -37,3 +37,32 @@ exports.addDossier = async (req, res, next) => {
     });
   }
 };
+
+exports.deleteDossier = async (req, res, next) => {
+  try {
+    await knex('dossier')
+      .where('dossier_num', req.body.dossier_num)
+      .select("*").then(async (dossier) => {
+        if (dossier.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "Dossier does not exist"
+          });
+        } else {
+          await knex('dossier')
+            .where({ dossier_num: req.body.dossier_num })
+            .del().then(() => {
+              return res.status(200).json({
+                success: true,
+                message: "Dossier deleted successfully"
+              });
+            });
+        }
+      })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};

@@ -38,7 +38,6 @@ exports.login = async (req, res, next) => {
                     expiresIn: "1h",
                   }
                 );
-
                 return res.status(200).json({
                   success: true,
                   message: "Auth successful",
@@ -139,11 +138,36 @@ exports.delete_user = async (req, res, next) => {
   }
 };
 
-// const data = {
-//   templateName: "test",
-//   sender: "",
-//   receiver: "", 
-//   name: "",
-  
-// };
-// sender.sendEmail(data);
+exports.getUsers = async (req, res, next) => {
+  try {
+    const userData = req.userData;
+    if (userData.isAdmin){
+      await knex('user')
+      .select("*")
+      .where('is_admin','=',false)
+      .then(async (users) => {
+        if (users.length === 0) {
+          return res.status(400).json({
+            success: false,
+            message: "there is no user"
+          });
+        } else {
+          return res.status(200).json({
+            success: true,
+            users
+          });
+        }
+      })
+    }else {
+      return res.status(400).json({
+        success: false,
+        message: "You do not have admin priviliges to perform this action"
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+};
