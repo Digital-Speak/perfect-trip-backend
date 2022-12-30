@@ -6,6 +6,6 @@ require("dotenv").config();
 
 router.post("/add", checkAuth, dossierController.addDossier);
 router.delete("/delete", checkAuth, dossierController.deleteDossier);
-// router.put("/edit", checkAuth, dossierController.editDossier);
+router.get("/getlast", checkAuth, dossierController.getLastDossier);
 
 module.exports = router;
