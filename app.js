@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require('cookie-parser');
 
@@ -19,12 +20,11 @@ const globalRoutes = require("./api/routes/global");
 
 // morgan to log in our dev environment
 app.use(morgan('dev'));
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
-app.use(cookieParser());
-
+app.use(cors({
+  credentials: true,
+  origin:`${process.env.CLIENT_URL}`
+}));
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin','*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   if(req.method === "OPTIONS"){
     res.header('Access-Control-Allow-Methods','PUT, POST, PATCH, DELETE, GET');
@@ -32,6 +32,11 @@ app.use((req, res, next) => {
   }
   next();
 })
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+
 
 //Routes which should handle requests
 app.use("/", globalRoutes);
