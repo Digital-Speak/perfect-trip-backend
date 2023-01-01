@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const cookieParser = require('cookie-parser');
+
 require('dotenv').config();
 
 //route
@@ -12,12 +14,14 @@ const hotelRoutes = require("./api/routes/hotel");
 const agencyRoutes = require("./api/routes/agency");
 const dossierRoutes = require("./api/routes/dossier");
 const circuitRoutes = require("./api/routes/circuit");
+const globalRoutes = require("./api/routes/global");
 
 
 // morgan to log in our dev environment
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin','*');
@@ -30,6 +34,7 @@ app.use((req, res, next) => {
 })
 
 //Routes which should handle requests
+app.use("/", globalRoutes);
 app.use("/user", userRoutes);
 app.use("/client", clientRoutes);
 app.use("/city", cityRoutes);

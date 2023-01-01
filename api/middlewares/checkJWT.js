@@ -6,7 +6,10 @@ module.exports = (req, res, next) => {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
     req.userData = decoded;
-    next();
+    return res.status(200).json({
+      success: true,
+      message: "JWT valid",
+    });
   } catch (error) {
     console.log(error);
     return res.status(401).json({

@@ -2,10 +2,11 @@ const User = require("../models/User");
 const Crypto = require('crypto')
 const knex = require('../../db');
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const sendEmail = require('../../tools/mails/reservationMail');
 const forgotPasswordEmail = require('../../tools/mails/forgotPasswordMail');
 var sender = require("../../tools/mails/testMail");
+const { createAccessToken } = require("../../tools/helpers/createJWTtoken");
+const { createJWTRefreshTokencookie } = require("../../tools/helpers/createCookie");
 
 function addHours(date, hours) {
   date.setHours(date.getHours() + hours);
@@ -14,13 +15,13 @@ function addHours(date, hours) {
 
 exports.login = async (req, res, next) => {
   try {
-
     await knex('user')
       .where('email', req.body.email)
       .select("*").then(async (user) => {
         if (user.length === 0) {
           console.log('email does not exist')
-          res.status(500).json({
+          res.status(401).json({
+            success: false,
             message: "Authentication error",
           });
         } else {
@@ -38,17 +39,8 @@ exports.login = async (req, res, next) => {
                 });
               }
               if (result) {
-                const token = jwt.sign(
-                  {
-                    email: user[0].email,
-                    userId: user[0].id,
-                    isAdmin: user[0].is_admin,
-                  },
-                  process.env.JWT_SECRET,
-                  {
-                    expiresIn: "1h",
-                  }
-                );
+                createJWTRefreshTokencookie(res, user)
+                const token = createAccessToken(user);
                 return res.status(200).json({
                   success: true,
                   message: "Auth successful",
@@ -86,12 +78,11 @@ exports.signUp = async (req, res, next) => {
             } else {
               const user = new User({ name: req.body.name, email: req.body.email, password: hash, is_admin: req.body.is_admin, created_at: new Date(), updated_at: new Date() });
               await knex('user').insert(user).then((res) => {
-                console.log(res)
-              });
-              return res.status(200).json({
-                success: true,
-                message: "User added successfully",
-                user,
+                return res.status(200).json({
+                  success: true,
+                  message: "User added successfully",
+                  user,
+                });
               });
             }
           });
@@ -107,6 +98,36 @@ exports.signUp = async (req, res, next) => {
     console.log(error);
     res.status(500).json({
       success: false,
+      error,
+    });
+  }
+};
+
+exports.logOut = async (req, res, next) => {
+  try {
+    await knex('user')
+      .where('id', req.body.id)
+      .select("*").then(async (user) => {
+        if (user.length === 0) {
+          console.log('id does not exist')
+          res.status(401).json({
+            success: false,
+            message: "Logout error",
+          });
+        } else {
+          knex('user')
+            .where({ id: req.body.id })
+            .update({ jwt_version_code: parseInt(user[0].jwt_version_code) + 1 }).then(() => {
+              return res.status(200).json({
+                success: true,
+                message: "Logged out successfully"
+              });
+            });
+        }
+      });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
       error,
     });
   }
@@ -254,10 +275,9 @@ exports.verifyToken = async (req, res, next) => {
           }
         })
     } else {
-
+//to finish
     }
 
-    // console.log(token); 
   } catch (error) {
     console.log(error);
     res.status(500).json({
