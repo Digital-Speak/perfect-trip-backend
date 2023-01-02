@@ -19,7 +19,8 @@ jobs:
       - name: Create .env file
         run: |
           touch .env  
-          echo JWT_SECRET =${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_ACCESS_TOKEN =${{ secrets.JWT_ACCESS_TOKEN }} >> .env
+          echo JWT_REFRESH_TOKEN =${{ secrets.JWT_REFRESH_TOKEN }} >> .env
           echo DATABASE_HOST =${{ secrets.DATABASE_HOST }} >> .env
           echo DATABASE_PORT =${{ secrets.DATABASE_PORT }} >> .env
           echo DATABASE_NAME =${{ secrets.DATABASE_NAME }} >> .env
@@ -29,6 +30,10 @@ jobs:
           echo PATH_KEY =${{ secrets.PATH_KEY }} >> .env
           echo PATH_KNEX_CA =${{ secrets.PATH_KNEX_CA }} >> .env
           echo PATH_WWW_CA =${{ secrets.PATH_WWW_CA }} >> .env
+          echo PORT =${{ secrets.PORT }} >> .env
+          echo NODE_ENV =${{ secrets.NODE_ENV }} >> .env
+          echo CLIENT_URL =${{ secrets.CLIENT_URL }} >> .env
+          echo API_URL =${{ secrets.API_URL }} >> .env
       - run: npm i
       - run: sudo pm2 restart server
  

@@ -1,4 +1,11 @@
 const fs = require("fs");
+const pg = require('pg');
+
+pg.defaults.ssl = {
+  rejectUnauthorized: false,
+};
+
+global.Promise = require('bluebird');
 
 module.exports = {
   development: {

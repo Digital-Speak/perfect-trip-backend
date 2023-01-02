@@ -77,7 +77,7 @@ exports.signUp = async (req, res, next) => {
               });
             } else {
               const user = new User({ name: req.body.name, email: req.body.email, password: hash, is_admin: req.body.is_admin, created_at: new Date(), updated_at: new Date() });
-              await knex('user').insert(user).then((res) => {
+              await knex('user').insert(user).then((res_) => {
                 return res.status(200).json({
                   success: true,
                   message: "User added successfully",

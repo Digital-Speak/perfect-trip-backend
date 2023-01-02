@@ -16,7 +16,6 @@ const createAccessToken = (user) => {
 }
 
 const createRefreshToken = (user) => {
-  console.log(user)
   return jwt.sign(
     {
       userId: user[0].id,
