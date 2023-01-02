@@ -1,4 +1,4 @@
-
+const fs = require("fs")
 module.exports = {
   development: {
     client: 'pg',
@@ -10,7 +10,14 @@ module.exports = {
       password: process.env.DATABASE_PASSWORD,
     },
     ssl: {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false,
+      ca: fs.readFileSync(`${process.env.PATH_KNEX_CA}`).toString(),
+      key: fs.readFileSync(`${process.env.PATH_KEY}`),
+      cert: fs.readFileSync(`${process.env.PATH_CERT}`),
+    },
+    pool: {
+      min: 2,
+      max: 10,
     },
   }
 };
