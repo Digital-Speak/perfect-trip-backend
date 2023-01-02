@@ -1,0 +1,34 @@
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-on-server:
+    runs-on: main-server
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+      - name: Create .env file
+        run: |
+          touch .env  
+          echo JWT_SECRET =${{ secrets.JWT_SECRET }} >> .env
+          echo DATABASE_HOST =${{ secrets.DATABASE_HOST }} >> .env
+          echo DATABASE_PORT =${{ secrets.DATABASE_PORT }} >> .env
+          echo DATABASE_NAME =${{ secrets.DATABASE_NAME }} >> .env
+          echo DATABASE_USER =${{ secrets.DATABASE_USER }} >> .env
+          echo DATABASE_PASSWORD =${{ secrets.DATABASE_PASSWORD }} >> .env
+          echo PATH_CERT =${{ secrets.PATH_CERT }} >> .env
+          echo PATH_KEY =${{ secrets.PATH_KEY }} >> .env
+          echo PATH_KNEX_CA =${{ secrets.PATH_KNEX_CA }} >> .env
+          echo PATH_WWW_CA =${{ secrets.PATH_WWW_CA }} >> .env
+      - run: npm i
+      - run: pm2 restart server
+ 
