@@ -1,4 +1,5 @@
-const fs = require("fs")
+const fs = require("fs");
+
 module.exports = {
   development: {
     client: 'pg',
