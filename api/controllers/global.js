@@ -25,20 +25,20 @@ exports.refreshToken = async (req, res, next) => {
           .select("*").then(async (user) => {
             if (user.length === 0) {
               console.log('user does not exist')
-              res.status(401).json({
+              return res.status(401).json({
                 success: false,
                 accessToken: ""
               });
             } else {
               if(user[0].jwt_version_code !== payload.jwtVersionCode){
-                res.status(401).json({
+                return res.status(401).json({
                   success: false,
                   message: 'invalid refresh token version',
                   accessToken: ""
                 });
               }else{
                 createJWTRefreshTokencookie(res,user);
-                res.status(200).json({
+                return res.status(200).json({
                   success: true,
                   accessToken: createAccessToken(user)
                 });
