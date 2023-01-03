@@ -33,7 +33,7 @@ exports.addCity = async (req, res, next) => {
 exports.deleteCity = async (req, res, next) => {
   try {
     await knex('city')
-      .where('name', req.body.name)
+      .where('id', req.body.id)
       .select("*").then(async (city) => {
         if (city.length === 0) {
           return res.status(400).json({
@@ -42,7 +42,7 @@ exports.deleteCity = async (req, res, next) => {
           });
         } else {
           await knex('city')
-            .where({ name: req.body.name })
+            .where({ id: req.body.id })
             .del().then(() => {
               return res.status(200).json({
                 success: true,
