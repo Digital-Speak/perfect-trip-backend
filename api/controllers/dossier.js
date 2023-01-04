@@ -17,11 +17,23 @@ exports.addDossier = async (req, res, next) => {
           created_at: new Date(),
           updated_at: new Date()
         })
-        await knex('dossier').insert(newDossier).then(() => {
-          return res.status(200).json({
-            success: true,
-            message: "Dossier added successfully",
-          });
+        await knex('dossier').insert(newDossier)
+          .returning('dossier_num')
+          .then(async (dossier_num) => {
+            console.log(dossier_num);
+            req.body.hotels_dossier.forEach(async (hotelForFolder) => {
+              console.log(dossier_num, hotelForFolder);
+              await knex('dossier_hotel')
+                .insert({
+                  dossier_id: hotelForFolder.dossier_num,
+                  extra_nights: hotelForFolder.extra_nights,
+                  hotel_id: hotelForFolder.hotel_id,
+                });
+            });
+        });
+        return res.status(200).json({
+          success: true,
+          message: "Dossier added successfully",
         });
       })
     }
@@ -83,7 +95,7 @@ exports.getLastDossier = async (req, res, next) => {
         } else {
           return res.status(200).json({
             success: true,
-            dossier_num: parseInt(dossier[0].dossier_num)+1
+            dossier_num: parseInt(dossier[0].dossier_num) + 1
           });
         }
       })
