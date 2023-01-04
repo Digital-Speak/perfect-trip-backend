@@ -88,9 +88,9 @@ exports.getLastDossier = async (req, res, next) => {
       .limit(1)
       .then(async (dossier) => {
         if (dossier.length === 0) {
-          return res.status(400).json({
-            success: false,
-            message: "there is no dossier"
+          return res.status(200).json({
+            success: true,
+            dossier_num: 0
           });
         } else {
           return res.status(200).json({
@@ -100,9 +100,9 @@ exports.getLastDossier = async (req, res, next) => {
         }
       })
   } catch (error) {
-    console.log(error);
     res.status(500).json({
       error,
+      success: false
     });
   }
 };

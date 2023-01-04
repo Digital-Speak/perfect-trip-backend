@@ -82,6 +82,7 @@ exports.getCircuitCityHotels = async (req, res, next) => {
     const hotels = await knex
       .distinct(
         'hotel.name as hotelName',
+        'hotel.id as hotelId',
         'city.name as cityName',
         'circuit_city.number_of_nights as numberOfNights',
         'city.id as cityId',
@@ -107,6 +108,7 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'hotel.name',
         'circuit_city.number_of_nights',
         'city.id',
+        'hotel.id',
       ).orderBy('city.id');
 
     return res.status(200).json({
