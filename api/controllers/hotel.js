@@ -3,7 +3,7 @@ const knex = require('../../db');
 
 exports.addHotel = async (req, res, next) => {
   try {
-    const newHotel = new Hotel({ name: req.body.name, stars: req.body.city_id, city_id: req.body.city_id, created_at: new Date(), updated_at: new Date() });
+    const newHotel = new Hotel({ name: req.body.name, stars: req.body.stars, city_id: req.body.city_id, created_at: new Date(), updated_at: new Date() });
     await knex('hotel').insert(newHotel).then(() => {
       return res.status(200).json({
         success: true,

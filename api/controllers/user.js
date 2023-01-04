@@ -106,7 +106,7 @@ exports.signUp = async (req, res, next) => {
 exports.logOut = async (req, res, next) => {
   try {
     await knex('user')
-      .where('id', req.body.id)
+      .where('id', req.userData.userId)
       .select("*").then(async (user) => {
         if (user.length === 0) {
           console.log('id does not exist')
@@ -116,7 +116,7 @@ exports.logOut = async (req, res, next) => {
           });
         } else {
           knex('user')
-            .where({ id: req.body.id })
+            .where({ id: req.userData.userId })
             .update({ jwt_version_code: parseInt(user[0].jwt_version_code) + 1 }).then(() => {
               return res.status(200).json({
                 success: true,

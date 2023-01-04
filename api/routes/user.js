@@ -6,7 +6,7 @@ const checkJWT = require("../middlewares/checkJWT");
 require("dotenv").config();
 
 router.post("/login", userController.login);
-router.post("/logout", userController.logOut);
+router.post("/logout",checkAuth, userController.logOut);
 router.post("/signup", userController.signUp);
 router.delete("/delete", checkAuth, userController.delete_user);
 router.get("/", checkAuth, userController.getUsers);
