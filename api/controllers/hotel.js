@@ -123,8 +123,14 @@ exports.getCircuitCityHotels = async (req, res, next) => {
 
 exports.getHotels = async (req, res, next) => {
   try {
-    await knex('hotel')
-      .select("*").then(async (hotels) => {
+    await knex
+    .select(
+      'hotel.*',
+      'city.name as cityName'
+    )
+    .from('hotel')
+    .leftJoin('city', 'city.id', '=', 'hotel.city_id')
+    .then(async (hotels) => {
         if (hotels.length === 0) {
           return res.status(400).json({
             success: false,
