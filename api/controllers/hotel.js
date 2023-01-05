@@ -79,6 +79,7 @@ exports.editHotel = async (req, res, next) => {
 
 exports.getCircuitCityHotels = async (req, res, next) => {
   try {
+    console.log(req.body)
     const hotels = await knex
       .distinct(
         'hotel.name as hotelName',
@@ -110,7 +111,7 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'city.id',
         'hotel.id',
       ).orderBy('city.id');
-
+    console.log(hotels)
     return res.status(200).json({
       success: true,
       hotels
