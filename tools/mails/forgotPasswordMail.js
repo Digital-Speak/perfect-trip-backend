@@ -3,10 +3,10 @@ const sgMail = require('@sendgrid/mail')
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 
-module.exports = async function SendEmail(email,name,token) {
+module.exports = async function SendEmail(email, name, token) {
   const msg = {
-    to: email, // Change to your recipient
-    from: process.env.MAINEMAIL, // Change to your verified sender
+    to: email,
+    from: process.env.MAINEMAIL,
     subject: 'Forgot password',
     text: 'Change password',
     html: `<div>
@@ -16,14 +16,14 @@ module.exports = async function SendEmail(email,name,token) {
     </div>
     `,
   }
-console.log(msg)
-  sgMail
-    .send(msg)
-    .then((response) => {
-      console.log(response[0].statusCode)
-      console.log(response[0].headers)
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  console.log(msg)
+  // sgMail
+  //   .send(msg)
+  //   .then((response) => {
+  //     console.log(response[0].statusCode)
+  //     console.log(response[0].headers)
+  //   })
+  //   .catch((error) => {
+  //     console.error(error)
+  //   })
 }

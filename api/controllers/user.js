@@ -208,14 +208,14 @@ exports.forgotPassword = async (req, res, next) => {
   try {
     const token = Crypto.randomBytes(128).toString('hex');
     await knex('user')
-      .select('name', 'id')
+      .select('name', 'id', 'email')
       .where({ email: req.body.email })
       .returning('name', 'id')
       .then(async function (user) {
         if (user.length === 0) {
           return res.status(400).json({
             success: false,
-            message: "there is no user with that email address"
+            message: "There is no user with that email address"
           });
         } else {
           await knex('user_mail_validation_token')
@@ -223,8 +223,8 @@ exports.forgotPassword = async (req, res, next) => {
               user_id: user[0].id,
               random_token: token,
               created_at: new Date(),
-            }).then(() => {
-              forgotPasswordEmail(req.body.email, user[0].name, token);
+            }).then(async () => {
+              await forgotPasswordEmail(user[0].email, user[0].name, token);
               return res.status(200).json({
                 success: true,
                 message: "An email has been sent"
@@ -232,6 +232,40 @@ exports.forgotPassword = async (req, res, next) => {
             })
         }
       })
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+}
+
+exports.setNewPassword = async (req, res, next) => {
+  try {
+      await knex('user_mail_validation_token')
+        .select("random_token", "created_at")
+        .where('random_token', '=', req.body.token)
+        .then(async (data) => {
+          if (data.length === 0) {
+            return res.status(400).json({
+              success: false,
+              message: "token does not exist"
+            });
+          } else {
+            const date = new Date(data[0].created_at);
+            const expirationDate = addHours(date, 3);
+            if (expirationDate >= new Date()) {
+              res.status(301).redirect(`${process.env.CLIENT_URL}/auth/password/new?token=${req.body.token}`);
+            } else {
+              await knex('user_mail_validation_token')
+                .where('random_token', '=', req.params.token)
+                .del()
+                .then(() => {
+                  res.status(301).redirect(`${process.env.CLIENT_URL}/auth/login?tokenhasexpired=true`);
+                })
+            }
+          }
+        })
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -256,28 +290,18 @@ exports.verifyToken = async (req, res, next) => {
             const date = new Date(data[0].created_at);
             const expirationDate = addHours(date, 3);
             if (expirationDate >= new Date()) {
-              res.redirect(`https://www.google.com`);
-              return res.status(200).json({
-                success: true,
-                data
-              });
+              res.status(301).redirect(`${process.env.CLIENT_URL}/auth/password/new?token=${req.params.token}`);
             } else {
               await knex('user_mail_validation_token')
                 .where('random_token', '=', req.params.token)
                 .del()
                 .then(() => {
-                  return res.status(200).json({
-                    success: false,
-                    message: "Token expired"
-                  });
+                  res.status(301).redirect(`${process.env.CLIENT_URL}/auth/login?tokenhasexpired=true`);
                 })
             }
           }
         })
-    } else {
-//to finish
     }
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
