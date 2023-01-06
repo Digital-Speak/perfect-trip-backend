@@ -12,6 +12,7 @@ router.delete("/delete", checkAuth, userController.delete_user);
 router.get("/", checkAuth, userController.getUsers);
 router.get("/verifytoken/:token", userController.verifyToken);
 router.post("/forgotpassword", userController.forgotPassword);
+router.post("/setnewpassword", userController.setNewPassword);
 router.get("/checkauth", checkJWT);
 
 module.exports = router;
