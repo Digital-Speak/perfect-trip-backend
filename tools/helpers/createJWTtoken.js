@@ -20,7 +20,6 @@ const createRefreshToken = (user) => {
     {
       userId: user[0].id,
       jwtVersionCode: user[0].jwt_version_code
-
     },
     process.env.JWT_REFRESH_TOKEN,
     {

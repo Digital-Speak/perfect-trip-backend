@@ -138,7 +138,7 @@ exports.delete_user = async (req, res, next) => {
     const userData = req.userData;
     if (userData.isAdmin) {
       await knex('user')
-        .where('email', req.body.email)
+        .where('id', req.body.id)
         .select("*").then(async (user) => {
           if (user.length === 0) {
             return res.status(400).json({
@@ -147,7 +147,7 @@ exports.delete_user = async (req, res, next) => {
             });
           } else {
             await knex('user')
-              .where({ email: req.body.email })
+              .where({ id: req.body.id })
               .del().then(() => {
                 return res.status(200).json({
                   success: true,
