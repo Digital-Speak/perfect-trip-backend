@@ -3,8 +3,30 @@ const knex = require('../../db');
 
 exports.addClient = async (req, res, next) => {
   try {
-    const newClient = new Client({ref_client:req.body.ref_client, name: req.body.name, category:req.body.category, created_at: new Date(), updated_at: new Date() });
-    const client =await knex('client').insert(newClient).returning('*');
+    const newClient = new Client({ ref_client: req.body.ref_client, name: req.body.name, category: req.body.category, created_at: new Date(), updated_at: new Date() });
+    const client = await knex('client').insert(newClient).returning('*');
+    return client;
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+    });
+  }
+};
+
+exports.updateCilent = async (req, res, next) => {
+  try {
+    const client = await knex('client')
+      .update({
+        ref_client: req.body.ref_client,
+        name: req.body.name,
+        category: req.body.category,
+      })
+      .where({
+        id: req.body.client_id
+      })
+
+    returning('*');
     return client;
   } catch (error) {
     console.log(error);
