@@ -11,6 +11,7 @@ require("dotenv").config();
 
 exports.refreshToken = async (req, res, next) => {
   try {
+    console.log(req.body)
     const token = req.cookies.jid;
     if (!token) {
       return res.status(401).json({
@@ -22,7 +23,7 @@ exports.refreshToken = async (req, res, next) => {
       if (payload) {
         await knex('user')
           .where('id', payload.userId)
-          .select("*").then(async (user) => {
+          .select("*").returning('*').then(async (user) => {
             if (user.length === 0) {
               console.log('user does not exist')
               return res.status(401).json({
@@ -40,6 +41,12 @@ exports.refreshToken = async (req, res, next) => {
                 createJWTRefreshTokencookie(res,user);
                 return res.status(200).json({
                   success: true,
+                  data: {
+                    name: user[0]?.name,
+                    email: user[0]?.email,
+                    is_admin: user[0]?.is_admin,
+                    created_at: user[0]?.created_at,
+                  },
                   accessToken: createAccessToken(user)
                 });
               }     
