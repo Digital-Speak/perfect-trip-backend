@@ -64,56 +64,56 @@ exports.updateDossier = async (req, res, next) => {
     console.log(req.body);
     // const updatedClient = client.updateCilent(req, res);
     // if (updatedClient) {
-      // updatedClient.then(async (client) => {
-        // if (!client || client.length === 0) return res.status(500).send({ success: false, message: "Opps, something went wrong!!" });
-        // await knex('dossier')
-        //   .update({
-        //     starts_at: new Date(new Date(req.body.starts_at).setHours(0, 0, 0, 0)),
-        //     ends_at: new Date(new Date(req.body.ends_at).setHours(0, 0, 0, 0)),
-        //     circuit_id: req.body.circuit_id,
-        //     agency_id: req.body.agency_id,
-        //     note: req.body.note,
-        //     updated_at: new Date()
-        //   })
-        //   .where({
-        //     dossier_num: req.body.dossier_num
-        //   })
-        //   .returning('dossier_num')
-        //   .then(async (dossier_num) => {
-        //     console.log(83, dossier_num);
-        //     // if (dossier_num[0].dossier_num !== req.body.dossier_num)
-        //     //   return res.status(500).json({
-        //     //     success: false,
-        //     //     message: "An error occured while updating the dossier"
-        //     //   });
-        //     req.body.hotels_dossier.forEach(async (hotelForFolder) => {
-        //       await knex('dossier_hotel')
-        //         .update({
-        //           dossier_id: hotelForFolder.dossier_num,
-        //           extra_nights: hotelForFolder.extra_nights,
-        //           hotel_id: hotelForFolder.hotel_id,
-        //         })
-        //         .where({
-        //           dossier_id: req.body.dossier_num
-        //         })
-        //     });
+    // updatedClient.then(async (client) => {
+    // if (!client || client.length === 0) return res.status(500).send({ success: false, message: "Opps, something went wrong!!" });
+    // await knex('dossier')
+    //   .update({
+    //     starts_at: new Date(new Date(req.body.starts_at).setHours(0, 0, 0, 0)),
+    //     ends_at: new Date(new Date(req.body.ends_at).setHours(0, 0, 0, 0)),
+    //     circuit_id: req.body.circuit_id,
+    //     agency_id: req.body.agency_id,
+    //     note: req.body.note,
+    //     updated_at: new Date()
+    //   })
+    //   .where({
+    //     dossier_num: req.body.dossier_num
+    //   })
+    //   .returning('dossier_num')
+    //   .then(async (dossier_num) => {
+    //     console.log(83, dossier_num);
+    //     // if (dossier_num[0].dossier_num !== req.body.dossier_num)
+    //     //   return res.status(500).json({
+    //     //     success: false,
+    //     //     message: "An error occured while updating the dossier"
+    //     //   });
+    //     req.body.hotels_dossier.forEach(async (hotelForFolder) => {
+    //       await knex('dossier_hotel')
+    //         .update({
+    //           dossier_id: hotelForFolder.dossier_num,
+    //           extra_nights: hotelForFolder.extra_nights,
+    //           hotel_id: hotelForFolder.hotel_id,
+    //         })
+    //         .where({
+    //           dossier_id: req.body.dossier_num
+    //         })
+    //     });
 
-        //     req.body.typeOfHb.forEach(async (item) => {
-        //       await knex('nbrpaxforhbtype')
-        //         .update({
-        //           typepax: item.label,
-        //           nbr: item.nbr,
-        //         })
-        //         .where({
-        //           dossier_id: req.body.dossier_num
-        //         })
-        //     });
-        //   });
-        // return res.status(200).json({
-        //   success: true,
-        //   message: "Dossier updated successfully",
-        // });
-      // })
+    //     req.body.typeOfHb.forEach(async (item) => {
+    //       await knex('nbrpaxforhbtype')
+    //         .update({
+    //           typepax: item.label,
+    //           nbr: item.nbr,
+    //         })
+    //         .where({
+    //           dossier_id: req.body.dossier_num
+    //         })
+    //     });
+    //   });
+    // return res.status(200).json({
+    //   success: true,
+    //   message: "Dossier updated successfully",
+    // });
+    // })
     // } else {
     //   return res.status(500).json({
     //     success: false,
@@ -187,18 +187,18 @@ exports.getLastDossier = async (req, res, next) => {
 exports.getDossier = async (req, res, next) => {
   try {
     await knex
-    .distinct(
-      'dossier.dossier_num as dossierNum',
-      'dossier.starts_at as startAt',
-      'dossier.ends_at as endAt',
-      'client.category as category',
-      'client.agency_id as agency_id',
-      'agency.name as agency',
-      'client.name as client_num',
-      'client.ref_client as client_ref',
-      'dossier.circuit_id',
-      'circuit.name as circuit',
-      'dossier.note as note',
+      .distinct(
+        'dossier.dossier_num as dossierNum',
+        'dossier.starts_at as startAt',
+        'dossier.ends_at as endAt',
+        'client.category as category',
+        'client.agency_id as agency_id',
+        'agency.name as agency',
+        'client.name as client_num',
+        'client.ref_client as client_ref',
+        'dossier.circuit_id',
+        'circuit.name as circuit',
+        'dossier.note as note',
       )
       .from('dossier')
       .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
@@ -247,7 +247,8 @@ exports.getDossiers = async (req, res, next) => {
       .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
       .where('dossier.starts_at', '>=', new Date(start_at))
-      .andWhere('dossier.starts_at', '<=', new Date(end_at));
+      .andWhere('dossier.starts_at', '<=', new Date(end_at))
+      .orderBy("dossier.starts_at ", "asc");
 
     const nbrpaxforhbtype = async (data) => {
       const newDataSet = []
