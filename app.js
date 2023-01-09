@@ -19,6 +19,10 @@ const globalRoutes = require("./api/routes/global");
 
 
 // morgan to log in our dev environment
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store')
+  next()
+})
 app.use(morgan('dev'));
 app.use(cors({
   credentials: true,
@@ -35,6 +39,7 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.set('etag', false)
 
 
 
