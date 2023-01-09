@@ -1,4 +1,5 @@
 const Dossier = require("../models/Dossier");
+const flightController = require('./flight');
 const knex = require('../../db');
 const client = require('./client');
 
@@ -21,6 +22,26 @@ exports.addDossier = async (req, res, next) => {
         await knex('dossier').insert(newDossier)
           .returning('dossier_num')
           .then(async (dossier_num) => {
+            await knex('flight').insert({
+              city_id_start: req.body.city_id_start,
+              from_start: req.body.from_start,
+              to_start: req.body.to_start,
+              flight_start: req.body.flight_start,
+              flight_time_start: req.body.flight_time_start,
+              from_to_start: req.body.from_to_start,
+              dossier_id: dossier_num,
+              city_id_end: req.body.city_id,
+              flight_end: req.body.flight_end,
+              from_end: req.body.from_end,
+              to_end: req.body.to_end,
+              from_to_end: req.body.from_to_end,
+              flight_time_end: req.body.flight_time_end,   
+            }).then(() => {
+              return res.status(200).json({
+                success: true,
+                message: "Flight added successfully",
+              });
+            });
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
               await knex('dossier_hotel')
                 .insert({
@@ -28,7 +49,6 @@ exports.addDossier = async (req, res, next) => {
                   extra_nights: hotelForFolder.extra_nights,
                   hotel_id: hotelForFolder.hotel_id,
                 }).then(async () => {
-
                 });
             });
             req.body.typeOfHb.forEach(async (item) => {
