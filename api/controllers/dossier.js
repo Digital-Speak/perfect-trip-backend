@@ -4,7 +4,6 @@ const knex = require('../../db');
 const client = require('./client');
 
 exports.addDossier = async (req, res, next) => {
-  console.log(req.body)
   try {
     const newClient = client.addClient(req, res);
     if (newClient) {
@@ -23,23 +22,9 @@ exports.addDossier = async (req, res, next) => {
         await knex('dossier').insert(newDossier)
           .returning('dossier_num')
           .then(async (dossier_num) => {
-            await knex('flight').insert({
-              city_id_start: 5,
-              // city_id_start: req.body.city_id_start,
-              from_start: req.body.from_start,
-              to_start: req.body.to_start,
-              flight_start: req.body.flight_start,
-              flight_time_start: req.body.flight_time_start,
-              from_to_start: req.body.from_to_start,
-              dossier_id: dossier_num[0].dossier_num,
-              city_id_end: 5,
-              // city_id_end: req.body.city_id,
-              flight_end: req.body.flight_end,
-              from_end: req.body.from_end,
-              to_end: req.body.to_end,
-              from_to_end: req.body.from_to_end,
-              flight_time_end: req.body.flight_time_end,   
-            });
+            req.body.dossier_id =  dossier_num[0].dossier_num;
+            req.body.isFromDossier =  true;
+            await flightController.addFlight(req,res,next);
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
               await knex('dossier_hotel')
                 .insert({

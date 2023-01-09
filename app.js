@@ -14,6 +14,7 @@ const cityRoutes = require("./api/routes/city");
 const hotelRoutes = require("./api/routes/hotel");
 const agencyRoutes = require("./api/routes/agency");
 const dossierRoutes = require("./api/routes/dossier");
+const flightRoutes = require("./api/routes/flight");
 const circuitRoutes = require("./api/routes/circuit");
 const globalRoutes = require("./api/routes/global");
 
@@ -52,6 +53,7 @@ app.use("/hotel", hotelRoutes);
 app.use("/agency", agencyRoutes);
 app.use("/circuit", circuitRoutes);
 app.use("/dossier", dossierRoutes);
+app.use("/flight", flightRoutes);
 
 // Error handling
 app.use((req, res, next)=>{
