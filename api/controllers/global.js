@@ -11,7 +11,6 @@ require("dotenv").config();
 
 exports.refreshToken = async (req, res, next) => {
   try {
-    console.log(req.body)
     const token = req.cookies.jid;
     if (!token) {
       return res.status(401).json({

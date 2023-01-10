@@ -100,7 +100,6 @@ exports.updateDossier = async (req, res, next) => {
     //   })
     //   .returning('dossier_num')
     //   .then(async (dossier_num) => {
-    //     console.log(83, dossier_num);
     //     // if (dossier_num[0].dossier_num !== req.body.dossier_num)
     //     //   return res.status(500).json({
     //     //     success: false,
@@ -313,8 +312,6 @@ exports.getDossiers = async (req, res, next) => {
 
 exports.getListDossiers = async (req, res, next) => {
   try {
-    console.log(req.body)
-
     const select = knex
       .distinct(
         'dossier.dossier_num as dossier_num',
