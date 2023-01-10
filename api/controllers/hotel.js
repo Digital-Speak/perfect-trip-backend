@@ -49,9 +49,12 @@ exports.deleteHotel = async (req, res, next) => {
 
 exports.editHotel = async (req, res, next) => {
   try {
+    console.log(req.body)
     await knex('hotel')
       .where('id', req.body.id)
       .select("*").then(async (hotel) => {
+        console.log(hotel)
+
         if (hotel.length === 0) {
           return res.status(400).json({
             success: false,
@@ -62,6 +65,8 @@ exports.editHotel = async (req, res, next) => {
           knex('hotel')
             .where({ id: req.body.id })
             .update(updatedHotel).then(() => {
+              console.log(updatedHotel)
+
               return res.status(200).json({
                 success: true,
                 message: "Hotel updated successfully"
@@ -82,11 +87,14 @@ exports.getCircuitCityHotels = async (req, res, next) => {
     console.log(req.body)
     const hotels = await knex
       .distinct(
+        'circuit.name as circuit',
         'hotel.name as hotelName',
         'hotel.id as hotelId',
         'city.name as cityName',
         'circuit_city.number_of_nights as numberOfNights',
         'city.id as cityId',
+        'circuit_city.id as circuit_city_id',
+        'hotel.stars as cat' 
       )
       .from('hotel')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
@@ -105,12 +113,17 @@ exports.getCircuitCityHotels = async (req, res, next) => {
       .where('circuit.id', '=', req.body.id)
       .andWhere('hotel.stars', 'like', `%${req.body.cat}%`)
       .groupBy(
+        'circuit.name',
         'city.name',
         'hotel.name',
         'circuit_city.number_of_nights',
         'city.id',
         'hotel.id',
+        'circuit_city.id',
+        'hotel.stars' 
       ).orderBy('city.id');
+
+    console.log("-----------------------------")
     console.log(hotels)
     return res.status(200).json({
       success: true,

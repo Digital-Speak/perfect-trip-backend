@@ -4,6 +4,7 @@ const circuitCityController = require('../controllers/circuit_city');
 const checkAuth = require('../middlewares/checkAuth');
 require("dotenv").config();
 
-router.post("/add", checkAuth, circuitCityController.addCircuitCity);
+router.get("/", checkAuth, circuitCityController.getCircuitCity);
+router.post("/", checkAuth, circuitCityController.addCircuitCity);
 
 module.exports = router;
