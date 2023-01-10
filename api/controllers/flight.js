@@ -16,6 +16,8 @@ exports.addFlight = async (req, res, next) => {
       to_end: req.body.to_end,
       from_to_end: req.body.from_to_end,
       flight_time_end: req.body.flight_time_end,   
+      flight_date_end: new Date(new Date(req.body.flight_date_end).setHours(0, 0, 0, 0)),   
+      flight_date_start: new Date(new Date(req.body.flight_date_start).setHours(0, 0, 0, 0)),   
     }).then(() => {
       if(!req.body.isFromDossier){
         res.status(200).json({
@@ -99,6 +101,8 @@ exports.getFlights = async (req, res, next) => {
         'flight.to_start',
         'flight.flight_start',
         'flight.flight_time_start',
+        'flight.flight_date_start',
+        'flight.flight_date_end',
         'flight.from_to_start',
         'flight.dossier_id',
         'flight.city_id_end',
@@ -142,6 +146,76 @@ exports.getFlights = async (req, res, next) => {
     console.log(error);
     res.status(500).json({
       error,
+    });
+  }
+};
+
+exports.getFlightsFiltered = async (req, res, next) => {
+  try {
+    const start_at = new Date(req.body.starts_at).setHours(0, 0, 0, 0);
+    const end_at = new Date(req.body.ends_at).setHours(0, 0, 0, 0);
+
+    const select = knex
+      .distinct(
+        'dossier.starts_at as startAt',
+        'dossier.ends_at as endAt',
+        'dossier.dossier_num as dossierNum',
+        'dossier_hotel.*',
+        'client.name as client',
+        'client.ref_client as clientRef',
+        'hotel.name as hotel',
+        'circuit.name as circuit',
+        'city.name as city',
+        'dossier.pax_num as paxNumber',
+        'dossier.pax_num as paxNumber',
+        'dossier.note as note',
+      )
+      .from('dossier')
+      .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
+      .leftJoin('client', 'client.id', '=', 'dossier.client_id')
+      .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
+      .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
+      .leftJoin('city', 'city.id', '=', 'hotel.city_id')
+      .where('dossier.starts_at', '>=', new Date(start_at))
+      .andWhere('dossier.starts_at', '<=', new Date(end_at))
+      .orderBy("dossier.starts_at ", "asc");
+
+    const nbrpaxforhbtype = async (data) => {
+      const newDataSet = []
+      if (data.length !== 0) {
+        data.forEach(async (item, index) => {
+          const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
+          newDataSet.push({ ...item, nbrpaxforhbtype })
+          if (index === data.length - 1) {
+            return await res.status(200).json({
+              success: true,
+              dossiers: newDataSet
+            });
+          }
+        })
+      } else {
+        return res.status(200).json({
+          success: true,
+          dossiers: []
+        });
+      }
+    }
+    if (req.body.city_id === -1 && req.body.hotel_id === -1) {
+      await select.then(nbrpaxforhbtype);
+    } else if (req.body.city_id !== -1 && req.body.hotel_id === -1) {
+      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`)
+        .then(nbrpaxforhbtype);
+    } else if (req.body.city_id !== -1 && req.body.hotel_id !== -1) {
+      await select
+        .andWhere('hotel.city_id', '=', `${req.body.city_id}`)
+        .andWhere('hotel.id', '=', `${req.body.hotel_id}`)
+        .then(nbrpaxforhbtype);
+    }
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({
+      error,
+      success: false
     });
   }
 };
