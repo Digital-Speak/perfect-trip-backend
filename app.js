@@ -16,6 +16,7 @@ const agencyRoutes = require("./api/routes/agency");
 const dossierRoutes = require("./api/routes/dossier");
 const flightRoutes = require("./api/routes/flight");
 const circuitRoutes = require("./api/routes/circuit");
+const circuitCityRoutes = require("./api/routes/circuit_city");
 const globalRoutes = require("./api/routes/global");
 
 
@@ -54,6 +55,7 @@ app.use("/agency", agencyRoutes);
 app.use("/circuit", circuitRoutes);
 app.use("/dossier", dossierRoutes);
 app.use("/flight", flightRoutes);
+app.use("/circuit_city", circuitCityRoutes);
 
 // Error handling
 app.use((req, res, next)=>{
