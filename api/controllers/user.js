@@ -7,6 +7,8 @@ const forgotPasswordEmail = require('../../tools/mails/forgotPasswordMail');
 var sender = require("../../tools/mails/testMail");
 const { createAccessToken } = require("../../tools/helpers/createJWTtoken");
 const { createJWTRefreshTokencookie } = require("../../tools/helpers/createCookie");
+const { Api, TelegramClient } = require("telegram");
+const { StringSession } = require("telegram/sessions");
 
 function addHours(date, hours) {
   date.setHours(date.getHours() + hours);
@@ -329,3 +331,30 @@ exports.verifyToken = async (req, res, next) => {
     });
   }
 }
+
+exports.InviteToChannel = async (req, res, next) => {
+  try {  
+    const session = new StringSession("1BJWap1wBu6ivV8cBph_GPbJN95DVTukNl3Gs1DPfTMa6UP8OOBXnt15FoXszggoTt6_Ei4sB9aUoxuZWfFRYBVA_pwjyv5UN9Xgzb4BSMaWjAzjmYXe5NVTr2CHQA2Yml6bazJgcF77KiVLDRPO-P2CysyhXPIc6MVZ_ZRDX_kwYuUSbYgwtXgCMJa7oXnOK8MJ7UbMh6xgJjptL9lHxMqy2VulJQwp3kcZOdECHrISDoyhpMTCVfgNEUkmR8QOdZ4iUbTCbBsxpQW36qRKrnzlHTfjwC20NiLXQoHadHpWkivN8v0KpbK83yRiRgCw-miuYv1nAvopq70ZZAATOvqzI5zzUhDg="); // You should put your string session here
+    const client = new TelegramClient(session, 22343712, '40d2b62388518c0aabf7ac79a82bfc98', {});
+    
+    (async function run() {
+      await client.connect(); // This assumes you have already authenticated with .start()
+      const result = await client.invoke(
+        new Api.channels.InviteToChannel({
+          channel: "testdigitalspeak",
+          users: ["moiOrange"],
+        })
+      );
+      console.log(result); // prints the result
+      return res.status(200).json({
+        result,
+      });
+    })();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+}
+
