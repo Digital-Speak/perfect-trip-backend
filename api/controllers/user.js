@@ -358,3 +358,145 @@ exports.InviteToChannel = async (req, res, next) => {
   }
 }
 
+exports.InviteToPrivateChannel = async (req, res, next) => {
+  try {  
+    const session = new StringSession("1BJWap1wBu6ivV8cBph_GPbJN95DVTukNl3Gs1DPfTMa6UP8OOBXnt15FoXszggoTt6_Ei4sB9aUoxuZWfFRYBVA_pwjyv5UN9Xgzb4BSMaWjAzjmYXe5NVTr2CHQA2Yml6bazJgcF77KiVLDRPO-P2CysyhXPIc6MVZ_ZRDX_kwYuUSbYgwtXgCMJa7oXnOK8MJ7UbMh6xgJjptL9lHxMqy2VulJQwp3kcZOdECHrISDoyhpMTCVfgNEUkmR8QOdZ4iUbTCbBsxpQW36qRKrnzlHTfjwC20NiLXQoHadHpWkivN8v0KpbK83yRiRgCw-miuYv1nAvopq70ZZAATOvqzI5zzUhDg="); // You should put your string session here
+    const client = new TelegramClient(session, 22343712, '40d2b62388518c0aabf7ac79a82bfc98', {});
+    
+    (async function run() {
+      await client.connect(); // This assumes you have already authenticated with .start()
+      const result = await client.invoke(
+        new Api.channels.InviteToChannel({
+          channel: "-1001860288794",
+          users: ["moiOrange"],
+        })
+      );
+      console.log(result); // prints the result
+      return res.status(200).json({
+        result,
+      });
+    })();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+}
+
+exports.InviteToGroup = async (req, res, next) => {
+  try {  
+    const session = new StringSession("1BJWap1wBu6ivV8cBph_GPbJN95DVTukNl3Gs1DPfTMa6UP8OOBXnt15FoXszggoTt6_Ei4sB9aUoxuZWfFRYBVA_pwjyv5UN9Xgzb4BSMaWjAzjmYXe5NVTr2CHQA2Yml6bazJgcF77KiVLDRPO-P2CysyhXPIc6MVZ_ZRDX_kwYuUSbYgwtXgCMJa7oXnOK8MJ7UbMh6xgJjptL9lHxMqy2VulJQwp3kcZOdECHrISDoyhpMTCVfgNEUkmR8QOdZ4iUbTCbBsxpQW36qRKrnzlHTfjwC20NiLXQoHadHpWkivN8v0KpbK83yRiRgCw-miuYv1nAvopq70ZZAATOvqzI5zzUhDg="); // You should put your string session here
+    const client = new TelegramClient(session, 22343712, '40d2b62388518c0aabf7ac79a82bfc98', {});
+    
+    (async function run() {
+      await client.connect(); // This assumes you have already authenticated with .start()
+      const result = await client.invoke(
+        new Api.channels.InviteToChannel({
+          channel: "testfunnels",
+          users: ["moiOrange"],
+        })
+      );
+      console.log(result); // prints the result
+      return res.status(200).json({
+        result,
+      });
+    })();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+}
+
+exports.InviteToPrivateGroup = async (req, res, next) => {
+  try {  
+    const session = new StringSession("1BJWap1wBu6ivV8cBph_GPbJN95DVTukNl3Gs1DPfTMa6UP8OOBXnt15FoXszggoTt6_Ei4sB9aUoxuZWfFRYBVA_pwjyv5UN9Xgzb4BSMaWjAzjmYXe5NVTr2CHQA2Yml6bazJgcF77KiVLDRPO-P2CysyhXPIc6MVZ_ZRDX_kwYuUSbYgwtXgCMJa7oXnOK8MJ7UbMh6xgJjptL9lHxMqy2VulJQwp3kcZOdECHrISDoyhpMTCVfgNEUkmR8QOdZ4iUbTCbBsxpQW36qRKrnzlHTfjwC20NiLXQoHadHpWkivN8v0KpbK83yRiRgCw-miuYv1nAvopq70ZZAATOvqzI5zzUhDg="); // You should put your string session here
+    const client = new TelegramClient(session, 22343712, '40d2b62388518c0aabf7ac79a82bfc98', {});
+    
+    (async function run() {
+      await client.connect(); // This assumes you have already authenticated with .start()
+      const result = await client.invoke(
+        new Api.channels.InviteToChannel({
+          channel:-1001811938102,
+          users: ["hamidelb"],
+        })
+      );
+      console.log(result); // prints the result
+      return res.status(200).json({
+        result,
+      });
+    })();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+}
+
+exports.InviteToPrivateChannelOrGroup = async (req, res, next) => {
+  try {  
+    console.log(req.body)
+
+    const session = new StringSession(req.body.session);
+    const isPrivate = req.body.isPrivate;
+    const api_id = req.body.api_id;
+    const api_hash = req.body.api_hash;
+    const private_channel_or_group_id = req.body.private_channel_or_group_id;
+    const client = new TelegramClient(session, api_id, api_hash, {});
+    const users = req.body.users;
+   
+    (async function run() {
+      await client.connect(); // This assumes you have already authenticated with .start()
+      const result = await client.invoke(
+        new Api.channels.InviteToChannel({
+          channel: isPrivate? parseFloat(`-100${private_channel_or_group_id}`): private_channel_or_group_id,
+          users,
+        })
+      );
+console.log(parseFloat(`-100${private_channel_or_group_id}`))
+      return res.status(200).json({
+        result,
+        data: req.body
+      });
+    })();
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      error,
+    });
+  }
+}
+
+exports.InviteToPublicChannelOrGroup = async (req, res, next) => {
+  try {  
+    const session = new StringSession(req.body.session);
+    const api_id = req.body.api_id;
+    const api_hash = req.body.api_hash;
+    const private_channel_or_group_id = req.body.private_channel_or_group_id;
+    const client = new TelegramClient(session, api_id, api_hash, {});
+    const users = req.body.users;
+   
+    (async function run() {
+      await client.connect(); // This assumes you have already authenticated with .start()
+      const result = await client.invoke(
+        new Api.channels.InviteToChannel({
+          channel: `${private_channel_or_group_id}`,
+          users,
+        })
+      );
+
+      return res.status(200).json({
+        result,
+        data: req.body
+      });
+    })();
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error,
+    });
+  }
+}
