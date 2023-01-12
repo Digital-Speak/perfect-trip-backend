@@ -14,8 +14,9 @@ exports.addDossier = async (req, res, next) => {
           ends_at: new Date(new Date(req.body.ends_at).setHours(0, 0, 0, 0)),
           circuit_id: req.body.circuit_id,
           agency_id: req.body.agency_id,
-          client_id: client[0].id,
+          pax_num: req.body.nbrPax,
           note: req.body.note,
+          client_id: client[0].id,
           created_at: new Date(),
           updated_at: new Date()
         })
