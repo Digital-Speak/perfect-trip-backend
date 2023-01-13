@@ -49,12 +49,9 @@ exports.deleteHotel = async (req, res, next) => {
 
 exports.editHotel = async (req, res, next) => {
   try {
-    console.log(req.body)
     await knex('hotel')
       .where('id', req.body.id)
       .select("*").then(async (hotel) => {
-        console.log(hotel)
-
         if (hotel.length === 0) {
           return res.status(400).json({
             success: false,
@@ -65,8 +62,6 @@ exports.editHotel = async (req, res, next) => {
           knex('hotel')
             .where({ id: req.body.id })
             .update(updatedHotel).then(() => {
-              console.log(updatedHotel)
-
               return res.status(200).json({
                 success: true,
                 message: "Hotel updated successfully"
@@ -84,7 +79,6 @@ exports.editHotel = async (req, res, next) => {
 
 exports.getCircuitCityHotels = async (req, res, next) => {
   try {
-    console.log(req.body)
     const hotels = await knex
       .distinct(
         'circuit.name as circuit',
@@ -122,9 +116,6 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'circuit_city.id',
         'hotel.stars' 
       ).orderBy('city.id');
-
-    console.log("-----------------------------")
-    console.log(hotels)
     return res.status(200).json({
       success: true,
       hotels

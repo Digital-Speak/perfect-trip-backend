@@ -65,7 +65,6 @@ exports.addDossier = async (req, res, next) => {
 
 exports.updateDossier = async (req, res, next) => {
   try {
-    console.log(req.body);
     // const updatedClient = client.updateCilent(req, res);
     // if (updatedClient) {
     // updatedClient.then(async (client) => {

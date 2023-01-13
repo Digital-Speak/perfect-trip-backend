@@ -4,8 +4,6 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 var nodemailer = require('nodemailer');
 
-
-
 module.exports = async function SendEmail(email, name, token) {
   var transporter = nodemailer.createTransport({
     service: 'gmail',

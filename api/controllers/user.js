@@ -309,7 +309,6 @@ exports.verifyToken = async (req, res, next) => {
             const date = new Date(data[0].created_at);
             const expirationDate = addHours(date, 3);
             if (expirationDate >= new Date()) {
-              console.log("first");
               res.status(301).redirect(`${process.env.CLIENT_URL}/auth/password/new/${req.params.token}`);
             } else {
               await knex('user_mail_validation_token')

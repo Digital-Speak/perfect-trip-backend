@@ -42,7 +42,6 @@ exports.getCircuitCity = async (req, res, next) => {
       .leftJoin('hotel', 'hotel.city_id', '=', 'city.id')
       .returning("*")
       .then(async (response) => {
-        console.log(response)
         res.status(200).send({
           success: true,
           circuits_cities: response
