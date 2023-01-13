@@ -198,7 +198,7 @@ exports.getDossier = async (req, res, next) => {
         'agency.name as agency',
         'client.name as client_num',
         'client.ref_client as client_ref',
-        'dossier.circuit_id',
+        'dossier.circuit_id as circuit_id',
         'circuit.name as circuit',
         'dossier.note as note',
       )
@@ -240,6 +240,7 @@ exports.getDossiers = async (req, res, next) => {
         'city.name as city',
         'dossier.pax_num as paxNumber',
         'dossier.pax_num as paxNumber',
+        'dossier.circuit_id as circuit_id',
         'dossier.note as note',
       )
       .from('dossier')
@@ -305,38 +306,16 @@ exports.getListDossiers = async (req, res, next) => {
         'client.name as client',
         'circuit.name as circuit',
         'dossier.pax_num as paxNumber',
+        'dossier.circuit_id as circuit_id',
         'dossier.note as note',
       )
       .from('dossier')
       .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('client', 'client.id', '=', 'dossier.client_id')
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
-      // .where('dossier.starts_at', '>=', new Date(start_at))
-      // .andWhere('dossier.starts_at', '<=', new Date(end_at))
       .orderBy("dossier.ends_at ", "asc");
 
-    // const nbrpaxforhbtype = async (data) => {
-    //   const newDataSet = []
-    //   if (data.length !== 0) {
-    //     data.forEach(async (item, index) => {
-    //       const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
-    //       newDataSet.push({ ...item, nbrpaxforhbtype })
-    //       if (index === data.length - 1) {
-    //         return await res.status(200).json({
-    //           success: true,
-    //           dossiers: newDataSet
-    //         });
-    //       }
-    //     })
-    //   } else {
-    //     return res.status(200).json({
-    //       success: true,
-    //       dossiers: []
-    //     });
-    //   }
-    // }
-
-    return await res.status(200).json({
+      return await res.status(200).json({
       success: true,
       dossiers: await select
     });

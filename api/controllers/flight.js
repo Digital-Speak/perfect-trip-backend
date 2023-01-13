@@ -113,8 +113,11 @@ exports.getFlights = async (req, res, next) => {
         'flight.from_to_end',
         'flight.flight_time_end',
         'city1.name as cityName1',
+        'client.name as client_name',
       )
       .leftJoin('city as city1', 'city1.id', '=', 'flight.city_id_start')
+      .leftJoin('dossier as dossier', 'dossier.dossier_num', '=', 'flight.dossier_id')
+      .leftJoin('client as client', 'client.id', '=', 'dossier.client_id')
       .orderBy('flightId','desc')
       .then(async (flight) => {
         if (flight.length === 0) {
