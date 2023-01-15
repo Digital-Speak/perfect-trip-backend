@@ -188,26 +188,29 @@ exports.getLastDossier = async (req, res, next) => {
 
 exports.getDossier = async (req, res, next) => {
   try {
+    console.log(req.body);
     await knex
       .distinct(
         'dossier.dossier_num as dossierNum',
         'dossier.starts_at as startAt',
         'dossier.ends_at as endAt',
         'client.category as category',
-        'client.agency_id as agency_id',
+        'dossier.agency_id as agency_id',
         'agency.name as agency',
-        'client.name as client_num',
+        'client.name as client_name',
         'client.ref_client as client_ref',
         'dossier.circuit_id as circuit_id',
         'circuit.name as circuit',
         'dossier.note as note',
+        'flight.*'
       )
       .from('dossier')
       .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('client', 'client.id', '=', 'dossier.client_id')
       .leftJoin('agency', 'agency.id', '=', 'dossier.agency_id')
+      .leftJoin('flight', 'flight.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
-      .where("dossier_num", "=", req.body.dossier_num)
+      .where("dossier_num", "=", req.body.id)
       .then(async (dossier) => {
         res.status(200).json({
           success: true,
@@ -215,6 +218,7 @@ exports.getDossier = async (req, res, next) => {
         });
       })
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       error,
       success: false
