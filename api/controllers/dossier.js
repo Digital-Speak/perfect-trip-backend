@@ -23,9 +23,9 @@ exports.addDossier = async (req, res, next) => {
         await knex('dossier').insert(newDossier)
           .returning('dossier_num')
           .then(async (dossier_num) => {
-            req.body.dossier_id =  dossier_num[0].dossier_num;
-            req.body.isFromDossier =  true;
-            await flightController.addFlight(req,res,next);
+            req.body.dossier_id = dossier_num[0].dossier_num;
+            req.body.isFromDossier = true;
+            await flightController.addFlight(req, res, next);
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
               await knex('dossier_hotel')
                 .insert({
@@ -143,7 +143,10 @@ exports.deleteDossier = async (req, res, next) => {
         } else {
           await knex('dossier')
             .where({ dossier_num: req.body.dossier_num })
-            .del().then(() => {
+            .update({
+              deleted: req.body.state,
+            })
+            .then(() => {
               return res.status(200).json({
                 success: true,
                 message: "Dossier deleted successfully"
@@ -188,7 +191,6 @@ exports.getLastDossier = async (req, res, next) => {
 
 exports.getDossier = async (req, res, next) => {
   try {
-    console.log(req.body);
     await knex
       .distinct(
         'dossier.dossier_num as dossierNum',
@@ -202,6 +204,7 @@ exports.getDossier = async (req, res, next) => {
         'dossier.circuit_id as circuit_id',
         'circuit.name as circuit',
         'dossier.note as note',
+        'dossier.deleted as deleted',
         'flight.*'
       )
       .from('dossier')
@@ -319,7 +322,7 @@ exports.getListDossiers = async (req, res, next) => {
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
       .orderBy("dossier.ends_at ", "asc");
 
-      return await res.status(200).json({
+    return await res.status(200).json({
       success: true,
       dossiers: await select
     });
