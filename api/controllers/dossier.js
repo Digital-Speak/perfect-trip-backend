@@ -272,8 +272,6 @@ exports.getDossiers = async (req, res, next) => {
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
           newDataSet.push({ ...item, nbrpaxforhbtype })
           if (index === data.length - 1) {
-            console.log(first)
-            console.log(276, newDataSet.length)
             return await res.status(200).json({
               success: true,
               dossiers: newDataSet.sort(function (a, b) {
