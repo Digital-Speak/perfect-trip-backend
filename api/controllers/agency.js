@@ -7,7 +7,6 @@ exports.addAgency = async (req, res, next) => {
       .where('name', req.body.name)
       .select("*").then(async (agency) => {
         if (agency.length !== 0) {
-          console.log('Agency already exist');
           return res.status(500).json({
             success: false,
             message: "Agency already exist",
