@@ -262,19 +262,23 @@ exports.getDossiers = async (req, res, next) => {
       .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
       .where('dossier_hotel.start_date', '>=', new Date(start_at))
-      .andWhere('dossier_hotel.end_date', '<=', new Date(end_at)).orderBy('city.id');
-
+      .andWhere('dossier_hotel.end_date', '<=', new Date(end_at))
+      .orderBy('dossier_hotel.start_date', 'asc')
+      
     const selectCiructs = async (data) => {
       const newDataSet = []
       if (data?.length !== 0) {
         data?.forEach(async (item, index) => {
-          console.log(item)
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
           newDataSet.push({ ...item, nbrpaxforhbtype })
           if (index === data.length - 1) {
+            console.log(first)
+            console.log(276, newDataSet.length)
             return await res.status(200).json({
               success: true,
-              dossiers: newDataSet
+              dossiers: newDataSet.sort(function (a, b) {
+                return new Date(a.startAt) - new Date(b.startAt);
+              })
             });
           }
         })
@@ -285,19 +289,13 @@ exports.getDossiers = async (req, res, next) => {
         });
       }
     }
-    console.log(req.body.city_id, req.body.hotel_id)
     if (req.body.city_id === -1 && req.body.hotel_id === -1) {
       await select.then(selectCiructs);
     } else if (req.body.city_id !== -1 && req.body.hotel_id === -1) {
-      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`)
-        .then(selectCiructs);
+      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).then(selectCiructs);
     } else if (req.body.city_id !== -1 && req.body.hotel_id !== -1) {
-      await select
-        .andWhere('hotel.city_id', '=', `${req.body.city_id}`)
-        .andWhere('hotel.id', '=', `${req.body.hotel_id}`)
-        .then(selectCiructs);
+      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).andWhere('hotel.id', '=', `${req.body.hotel_id}`).then(selectCiructs);
     }
-
   } catch (error) {
     console.log(error)
     res.status(500).json({
