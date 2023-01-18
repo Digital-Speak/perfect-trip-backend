@@ -236,8 +236,7 @@ exports.getDossiers = async (req, res, next) => {
   try {
     const start_at = new Date(req.body.starts_at).setHours(0, 0, 0, 0);
     const end_at = new Date(req.body.ends_at).setHours(0, 0, 0, 0);
-    console.log(new Date(start_at))
-    console.log(new Date(end_at))
+    console.log(req.body)
     const select = knex
       .distinct(
         'dossier.dossier_num as dossierNum',
@@ -264,7 +263,7 @@ exports.getDossiers = async (req, res, next) => {
       .where('dossier_hotel.start_date', '>=', new Date(start_at))
       .andWhere('dossier_hotel.end_date', '<=', new Date(end_at))
       .orderBy('dossier_hotel.start_date', 'asc')
-      
+
     const selectCiructs = async (data) => {
       const newDataSet = []
       if (data?.length !== 0) {
@@ -287,13 +286,24 @@ exports.getDossiers = async (req, res, next) => {
         });
       }
     }
-    if (req.body.city_id === -1 && req.body.hotel_id === -1) {
+
+    if (req.body.city_id == -1 && req.body.hotel_id == -1) {
+      console.log("All")
       await select.then(selectCiructs);
-    } else if (req.body.city_id !== -1 && req.body.hotel_id === -1) {
-      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).then(selectCiructs);
-    } else if (req.body.city_id !== -1 && req.body.hotel_id !== -1) {
-      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).andWhere('hotel.id', '=', `${req.body.hotel_id}`).then(selectCiructs);
-    }
+    } else
+      if (req.body.city_id != -1 && req.body.hotel_id == -1) {
+        console.log("City 1: ", req.body.city_id)
+        await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).then(selectCiructs);
+      } else
+        if (req.body.city_id == -1 && req.body.hotel_id != -1) {
+          console.log("Hotel 1:", req.body.hotel_id);
+          await select.andWhere('dossier_hotel.hotel_id', '=', `${req.body.city_id}`).then(selectCiructs);
+        } else
+          if (req.body.city_id != -1 && req.body.hotel_id != -1) {
+            console.log("City 2:", req.body.city_id);
+            console.log("Hotel 2:", req.body.hotel_id);
+            await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).andWhere('dossier_hotel.hotel_id', '=', `${req.body.hotel_id}`).then(selectCiructs);
+          }
   } catch (error) {
     console.log(error)
     res.status(500).json({
