@@ -219,13 +219,11 @@ exports.getDossier = async (req, res, next) => {
       .where("dossier_num", "=", req.body.id)
       .then(async (dossier) => {
         const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
-        if (nbrpaxforhbtype.length !== 0) {
           await res.status(200).json({
             success: true,
             data: dossier,
             nbrpaxforhbtype: nbrpaxforhbtype
           });
-        }
       })
   } catch (error) {
     console.log(error);
