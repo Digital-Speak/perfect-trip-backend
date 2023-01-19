@@ -42,6 +42,7 @@ exports.addDossier = async (req, res, next) => {
                   hotel_id: hotelForFolder.hotel_id,
                   start_date: hotelForFolder.from,
                   end_date: hotelForFolder.to,
+                  type_regime: hotelForFolder.regime
                 }).then(async () => {
                 });
             });
@@ -227,16 +228,19 @@ exports.getDossier = async (req, res, next) => {
         const circuits = await knex
           .distinct(
             'city.name as city',
-            'hotel.name as hotel_name',
+            'hotel.name as hotel',
             'hotel.id as hotel_id',
             'city.id as city_id',
             'circuit_city.number_of_nights as number_of_nights',
+            'dossier_hotel.type_regime as regime',
+            'circuit_city.id'
           )
           .from('dossier_hotel')
           .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
           .leftJoin('city', 'city.id', '=', 'hotel.city_id')
           .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
-          .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum);
+          .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum)
+          .orderBy("circuit_city.id", "asc")
         const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
         await res.status(200).json({
           success: true,
