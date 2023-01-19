@@ -34,6 +34,8 @@ jobs:
           echo NODE_ENV =${{ secrets.NODE_ENV }} >> .env
           echo CLIENT_URL =${{ secrets.CLIENT_URL }} >> .env
           echo API_URL =${{ secrets.API_URL }} >> .env
+          echo MAINEMAIL =${{ secrets.MAINEMAIL }} >> .env
+          echo MAINEMAILPASS =${{ secrets.MAINEMAILPASS }} >> .env
       - run: npm i
       - run: sudo pm2 restart server
  
