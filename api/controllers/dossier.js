@@ -6,7 +6,7 @@ const moment = require("moment");
 exports.addDossier = async (req, res, next) => {
   try {
     const newClient = client.addClient(req, res);
-
+    console.log(req.body);
     if (newClient) {
       newClient.then(async (client) => {
         const newDossier = new Dossier({
@@ -28,6 +28,13 @@ exports.addDossier = async (req, res, next) => {
             req.body.isFromDossier = true;
             await flightController.addFlight(req, res, next);
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
+              console.log({
+                dossier_id: hotelForFolder.dossier_num,
+                extra_nights: hotelForFolder.extra_nights,
+                hotel_id: hotelForFolder.hotel_id,
+                start_date: hotelForFolder.from,
+                end_date: hotelForFolder.to,
+              });
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
@@ -211,19 +218,32 @@ exports.getDossier = async (req, res, next) => {
         'flight.*'
       )
       .from('dossier')
-      .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('client', 'client.id', '=', 'dossier.client_id')
       .leftJoin('agency', 'agency.id', '=', 'dossier.agency_id')
       .leftJoin('flight', 'flight.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
       .where("dossier_num", "=", req.body.id)
       .then(async (dossier) => {
+        const circuits = await knex
+          .distinct(
+            'city.name as city',
+            'hotel.name as hotel_name',
+            'hotel.id as hotel_id',
+            'city.id as city_id',
+            'circuit_city.number_of_nights as number_of_nights',
+          )
+          .from('dossier_hotel')
+          .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
+          .leftJoin('city', 'city.id', '=', 'hotel.city_id')
+          .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
+          .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum);
         const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
-          await res.status(200).json({
-            success: true,
-            data: dossier,
-            nbrpaxforhbtype: nbrpaxforhbtype
-          });
+        await res.status(200).json({
+          success: true,
+          data: dossier,
+          nbrpaxforhbtype: nbrpaxforhbtype,
+          circuits: circuits
+        });
       })
   } catch (error) {
     console.log(error);
