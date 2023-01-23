@@ -6,13 +6,12 @@ const moment = require("moment");
 exports.addDossier = async (req, res, next) => {
   try {
     const newClient = client.addClient(req, res);
-    console.log(req.body);
     if (newClient) {
       newClient.then(async (client) => {
         const newDossier = new Dossier({
           dossier_num: req.body.dossier_num,
-          starts_at: new Date(new Date(req.body.starts_at).setHours(0, 0, 0, 0)),
-          ends_at: new Date(new Date(req.body.ends_at).setHours(0, 0, 0, 0)),
+          starts_at: new Date(req.body.starts_at.split(' ').slice(0, 3).join(' ')),
+          ends_at: new Date(req.body.ends_at.split(' ').slice(0, 3).join(' ')),
           circuit_id: req.body.circuit_id,
           agency_id: req.body.agency_id,
           pax_num: req.body.nbrPax,
@@ -21,6 +20,7 @@ exports.addDossier = async (req, res, next) => {
           created_at: new Date(),
           updated_at: new Date(),
         })
+
         await knex('dossier').insert(newDossier)
           .returning('dossier_num')
           .then(async (dossier_num) => {
@@ -28,20 +28,28 @@ exports.addDossier = async (req, res, next) => {
             req.body.isFromDossier = true;
             await flightController.addFlight(req, res, next);
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
-              console.log({
-                dossier_id: hotelForFolder.dossier_num,
-                extra_nights: hotelForFolder.extra_nights,
-                hotel_id: hotelForFolder.hotel_id,
-                start_date: hotelForFolder.from,
-                end_date: hotelForFolder.to,
-              });
+              let hotel_id = hotelForFolder.hotel_id;
+              // console.log(40, hotel_id);
+              // console.log(41, hotelForFolder.cityName == 'MERZOUGA', hotelForFolder.cityName == 'ERFOUD');
+
+              // if (hotelForFolder.cityName == 'MERZOUGA' || hotelForFolder.cityName == 'ERFOUD') {
+              //   const id = await knex("hotel")
+              //     .leftJoin("city", "city.id", "=", "hotel.city_id")
+              //     .where("city.name", "=", hotelForFolder.cityName)
+              //     .andWhere("hotel.stars", "city.id", "=", "hotel.city_id")
+              //     .returning("hotel.id");
+
+              //   console.log(47, id);
+              //   hotel_id = id[0];
+              // }
+              // console.log(hotel_id);
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
                   extra_nights: hotelForFolder.extra_nights,
-                  hotel_id: hotelForFolder.hotel_id,
-                  start_date: hotelForFolder.from,
-                  end_date: hotelForFolder.to,
+                  hotel_id: hotel_id,
+                  start_date: new Date(hotelForFolder.from.split(' ').slice(0, 3).join(' ')),
+                  end_date: new Date(hotelForFolder.to.split(' ').slice(0, 3).join(' ')),
                   type_regime: hotelForFolder.regime
                 }).then(async () => {
                 });

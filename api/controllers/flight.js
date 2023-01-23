@@ -16,8 +16,8 @@ exports.addFlight = async (req, res, next) => {
       to_end: req.body.to_end,
       from_to_end: req.body.from_to_end,
       flight_time_end: req.body.flight_time_end,   
-      flight_date_end: new Date(new Date(req.body.flight_date_end).setHours(0, 0, 0, 0)),   
-      flight_date_start: new Date(new Date(req.body.flight_date_start).setHours(0, 0, 0, 0)),   
+      flight_date_end: new Date(String(req.body.flight_date_end).split(' ').slice(0, 3).join(' ')),
+      flight_date_start: new Date(String(req.body.flight_date_start).split(' ').slice(0, 3).join(' ')),   
     }).then(() => {
       if(!req.body.isFromDossier){
         res.status(200).json({
