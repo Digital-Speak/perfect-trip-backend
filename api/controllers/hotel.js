@@ -88,7 +88,7 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'circuit_city.number_of_nights as numberOfNights',
         'city.id as cityId',
         'circuit_city.id as circuit_city_id',
-        'hotel.stars as cat' 
+        'hotel.stars as cat'
       )
       .from('hotel')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
@@ -114,7 +114,7 @@ exports.getCircuitCityHotels = async (req, res, next) => {
         'city.id',
         'hotel.id',
         'circuit_city.id',
-        'hotel.stars' 
+        'hotel.stars'
       ).orderBy('city.id');
     return res.status(200).json({
       success: true,
@@ -131,13 +131,13 @@ exports.getCircuitCityHotels = async (req, res, next) => {
 exports.getHotels = async (req, res, next) => {
   try {
     await knex
-    .select(
-      'hotel.*',
-      'city.name as cityName'
-    )
-    .from('hotel')
-    .leftJoin('city', 'city.id', '=', 'hotel.city_id')
-    .then(async (hotels) => {
+      .select(
+        'hotel.*',
+        'city.name as cityName'
+      )
+      .from('hotel')
+      .leftJoin('city', 'city.id', '=', 'hotel.city_id')
+      .then(async (hotels) => {
         if (hotels.length === 0) {
           return res.status(400).json({
             success: false,

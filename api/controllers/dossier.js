@@ -71,63 +71,7 @@ exports.addDossier = async (req, res, next) => {
 
 exports.updateDossier = async (req, res, next) => {
   try {
-    // const updatedClient = client.updateCilent(req, res);
-    // if (updatedClient) {
-    // updatedClient.then(async (client) => {
-    // if (!client || client.length === 0) return res.status(500).send({ success: false, message: "Opps, something went wrong!!" });
-    // await knex('dossier')
-    //   .update({
-    //     starts_at: new Date(new Date(req.body.starts_at).setHours(0, 0, 0, 0)),
-    //     ends_at: new Date(new Date(req.body.ends_at).setHours(0, 0, 0, 0)),
-    //     circuit_id: req.body.circuit_id,
-    //     agency_id: req.body.agency_id,
-    //     note: req.body.note,
-    //     updated_at: new Date()
-    //   })
-    //   .where({
-    //     dossier_num: req.body.dossier_num
-    //   })
-    //   .returning('dossier_num')
-    //   .then(async (dossier_num) => {
-    //     // if (dossier_num[0].dossier_num !== req.body.dossier_num)
-    //     //   return res.status(500).json({
-    //     //     success: false,
-    //     //     message: "An error occured while updating the dossier"
-    //     //   });
-    //     req.body.hotels_dossier.forEach(async (hotelForFolder) => {
-    //       await knex('dossier_hotel')
-    //         .update({
-    //           dossier_id: hotelForFolder.dossier_num,
-    //           extra_nights: hotelForFolder.extra_nights,
-    //           hotel_id: hotelForFolder.hotel_id,
-    //         })
-    //         .where({
-    //           dossier_id: req.body.dossier_num
-    //         })
-    //     });
 
-    //     req.body.typeOfHb.forEach(async (item) => {
-    //       await knex('nbrpaxforhbtype')
-    //         .update({
-    //           typepax: item.label,
-    //           nbr: item.nbr,
-    //         })
-    //         .where({
-    //           dossier_id: req.body.dossier_num
-    //         })
-    //     });
-    //   });
-    // return res.status(200).json({
-    //   success: true,
-    //   message: "Dossier updated successfully",
-    // });
-    // })
-    // } else {
-    //   return res.status(500).json({
-    //     success: false,
-    //     message: "An error occured while updating the dossier"
-    //   });
-    // }
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -220,37 +164,38 @@ exports.getDossier = async (req, res, next) => {
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
       .where("dossier_num", "=", req.body.id)
       .then(async (dossier) => {
-        if (dossier.length === 0) {
+        if (dossier[0].dossierNum == undefined) {
           await res.status(200).json({
             success: false,
             data: [],
             nbrpaxforhbtype: [],
             circuits: []
           });
+        } else {
+          const circuits = await knex
+            .distinct(
+              'city.name as city',
+              'hotel.name as hotel',
+              'hotel.id as hotel_id',
+              'city.id as city_id',
+              'circuit_city.number_of_nights as number_of_nights',
+              'dossier_hotel.type_regime as regime',
+              'circuit_city.id'
+            )
+            .from('dossier_hotel')
+            .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
+            .leftJoin('city', 'city.id', '=', 'hotel.city_id')
+            .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
+            .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum)
+            .orderBy("circuit_city.id", "asc")
+          const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
+          await res.status(200).json({
+            success: true,
+            data: dossier,
+            nbrpaxforhbtype: nbrpaxforhbtype,
+            circuits: circuits
+          });
         }
-        const circuits = await knex
-          .distinct(
-            'city.name as city',
-            'hotel.name as hotel',
-            'hotel.id as hotel_id',
-            'city.id as city_id',
-            'circuit_city.number_of_nights as number_of_nights',
-            'dossier_hotel.type_regime as regime',
-            'circuit_city.id'
-          )
-          .from('dossier_hotel')
-          .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
-          .leftJoin('city', 'city.id', '=', 'hotel.city_id')
-          .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
-          .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum)
-          .orderBy("circuit_city.id", "asc")
-        const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
-        await res.status(200).json({
-          success: true,
-          data: dossier,
-          nbrpaxforhbtype: nbrpaxforhbtype,
-          circuits: circuits
-        });
       })
   } catch (error) {
     console.log(error);
@@ -292,7 +237,8 @@ exports.getDossiers = async (req, res, next) => {
       const newDataSet = []
       if (data?.length !== 0) {
         data?.forEach(async (item, index) => {
-          const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
+          const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype')
+            .where("dossier_id", "=", item.dossierNum);
           newDataSet.push({ ...item, nbrpaxforhbtype })
           if (index === data.length - 1) {
             const newData = [];
@@ -318,16 +264,16 @@ exports.getDossiers = async (req, res, next) => {
     }
 
     if (req.body.city_id == -1 && req.body.hotel_id == -1) {
-      await select.then(selectCiructs);
+      await select.where('dossier.deleted', "!=", "true").then(selectCiructs);
     } else
       if (req.body.city_id != -1 && req.body.hotel_id == -1) {
-        await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).then(selectCiructs);
+        await select.andWhere('dossier.deleted', "!=", "true").andWhere('hotel.city_id', '=', `${req.body.city_id}`).then(selectCiructs);
       } else
         if (req.body.city_id == -1 && req.body.hotel_id != -1) {
-          await select.andWhere('dossier_hotel.hotel_id', '=', `${req.body.hotel_id}`).then(selectCiructs);
+          await select.andWhere('dossier.deleted', "!=", "true").andWhere('dossier_hotel.hotel_id', '=', `${req.body.hotel_id}`).then(selectCiructs);
         } else
           if (req.body.city_id != -1 && req.body.hotel_id != -1) {
-            await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`).andWhere('dossier_hotel.hotel_id', '=', `${req.body.hotel_id}`).then(selectCiructs);
+            await select.andWhere('dossier.deleted', "!=", "true").andWhere('hotel.city_id', '=', `${req.body.city_id}`).andWhere('dossier_hotel.hotel_id', '=', `${req.body.hotel_id}`).then(selectCiructs);
           }
   } catch (error) {
     console.log(error)
@@ -357,6 +303,7 @@ exports.getListDossiers = async (req, res, next) => {
       .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('client', 'client.id', '=', 'dossier.client_id')
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
+      .where('dossier.deleted', "!=", "true")
       .orderBy("dossier.ends_at ", "asc");
     return await res.status(200).json({
       success: true,

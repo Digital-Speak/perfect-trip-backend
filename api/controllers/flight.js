@@ -64,35 +64,6 @@ exports.deleteFlight = async (req, res, next) => {
   }
 };
 
-// exports.editFlights = async (req, res, next) => {
-//   try {
-//     await knex('flight')
-//       .where('id', req.body.id)
-//       .select("*").then(async (flight) => {
-//         if (flight.length === 0) {
-//           return res.status(400).json({
-//             success: false,
-//             message: "Flight does not exist"
-//           });
-//         } else {
-//           knex('flight')
-//             .where({ id: req.body.id })
-//             .update({}).then(() => {
-//               return res.status(200).json({
-//                 success: true,
-//                 message: "Flight updated successfully"
-//               });
-//             });
-//         }
-//       })
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({
-//       error,
-//     });
-//   }
-// };
-
 exports.getFlights = async (req, res, next) => {
   try {
     await knex('flight')
@@ -120,6 +91,7 @@ exports.getFlights = async (req, res, next) => {
       .leftJoin('dossier as dossier', 'dossier.dossier_num', '=', 'flight.dossier_id')
       .leftJoin('client as client', 'client.id', '=', 'dossier.client_id')
       .orderBy('flightId', 'desc')
+      .where('dossier.deleted', "!=", "true")
       .then(async (flight) => {
         if (flight.length === 0) {
           return res.status(400).json({
@@ -150,76 +122,6 @@ exports.getFlights = async (req, res, next) => {
     console.log(error);
     res.status(500).json({
       error,
-    });
-  }
-};
-
-exports.getFlightsFiltered = async (req, res, next) => {
-  try {
-    const start_at = new Date(req.body.starts_at).setHours(0, 0, 0, 0);
-    const end_at = new Date(req.body.ends_at).setHours(0, 0, 0, 0);
-
-    const select = knex
-      .distinct(
-        'dossier.starts_at as startAt',
-        'dossier.ends_at as endAt',
-        'dossier.dossier_num as dossierNum',
-        'dossier_hotel.*',
-        'client.name as client',
-        'client.ref_client as clientRef',
-        'hotel.name as hotel',
-        'circuit.name as circuit',
-        'city.name as city',
-        'dossier.pax_num as paxNumber',
-        'dossier.pax_num as paxNumber',
-        'dossier.note as note',
-      )
-      .from('dossier')
-      .leftJoin('dossier_hotel', 'dossier_hotel.dossier_id', '=', 'dossier.dossier_num')
-      .leftJoin('client', 'client.id', '=', 'dossier.client_id')
-      .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
-      .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
-      .leftJoin('city', 'city.id', '=', 'hotel.city_id')
-      .where('dossier.starts_at', '>=', new Date(start_at))
-      .andWhere('dossier.starts_at', '<=', new Date(end_at))
-      .orderBy("dossier.starts_at ", "asc");
-
-    const nbrpaxforhbtype = async (data) => {
-      const newDataSet = []
-      if (data.length !== 0) {
-        data.forEach(async (item, index) => {
-          const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
-          newDataSet.push({ ...item, nbrpaxforhbtype })
-          if (index === data.length - 1) {
-            return await res.status(200).json({
-              success: true,
-              dossiers: newDataSet
-            });
-          }
-        })
-      } else {
-        return res.status(200).json({
-          success: true,
-          dossiers: []
-        });
-      }
-    }
-    if (req.body.city_id === -1 && req.body.hotel_id === -1) {
-      await select.then(nbrpaxforhbtype);
-    } else if (req.body.city_id !== -1 && req.body.hotel_id === -1) {
-      await select.andWhere('hotel.city_id', '=', `${req.body.city_id}`)
-        .then(nbrpaxforhbtype);
-    } else if (req.body.city_id !== -1 && req.body.hotel_id !== -1) {
-      await select
-        .andWhere('hotel.city_id', '=', `${req.body.city_id}`)
-        .andWhere('hotel.id', '=', `${req.body.hotel_id}`)
-        .then(nbrpaxforhbtype);
-    }
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({
-      error,
-      success: false
     });
   }
 };
