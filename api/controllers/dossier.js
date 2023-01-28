@@ -3,6 +3,7 @@ const flightController = require('./flight');
 const knex = require('../../db');
 const client = require('./client');
 const moment = require("moment");
+
 exports.addDossier = async (req, res, next) => {
   try {
     const newClient = client.addClient(req, res);
@@ -10,8 +11,8 @@ exports.addDossier = async (req, res, next) => {
       newClient.then(async (client) => {
         const newDossier = new Dossier({
           dossier_num: req.body.dossier_num,
-          starts_at: new Date(req.body.starts_at.split(' ').slice(0, 3).join(' ')),
-          ends_at: new Date(req.body.ends_at.split(' ').slice(0, 3).join(' ')),
+          starts_at: moment(new Date(req.body.starts_at)).format("YYYY-M-D"),
+          ends_at: moment(new Date(req.body.ends_at)).format("YYYY-M-D"),
           circuit_id: req.body.circuit_id,
           agency_id: req.body.agency_id,
           pax_num: req.body.nbrPax,
@@ -29,27 +30,13 @@ exports.addDossier = async (req, res, next) => {
             await flightController.addFlight(req, res, next);
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
               let hotel_id = hotelForFolder.hotel_id;
-              // console.log(40, hotel_id);
-              // console.log(41, hotelForFolder.cityName == 'MERZOUGA', hotelForFolder.cityName == 'ERFOUD');
-
-              // if (hotelForFolder.cityName == 'MERZOUGA' || hotelForFolder.cityName == 'ERFOUD') {
-              //   const id = await knex("hotel")
-              //     .leftJoin("city", "city.id", "=", "hotel.city_id")
-              //     .where("city.name", "=", hotelForFolder.cityName)
-              //     .andWhere("hotel.stars", "city.id", "=", "hotel.city_id")
-              //     .returning("hotel.id");
-
-              //   console.log(47, id);
-              //   hotel_id = id[0];
-              // }
-              // console.log(hotel_id);
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
                   extra_nights: hotelForFolder.extra_nights,
                   hotel_id: hotel_id,
-                  start_date: new Date(hotelForFolder.from.split(' ').slice(0, 3).join(' ')),
-                  end_date: new Date(hotelForFolder.to.split(' ').slice(0, 3).join(' ')),
+                  start_date: moment(new Date(hotelForFolder.from)).format("YYYY-M-D"),
+                  end_date: moment(new Date(hotelForFolder.to)).format("YYYY-M-D"),
                   type_regime: hotelForFolder.regime
                 }).then(async () => {
                 });
@@ -233,6 +220,14 @@ exports.getDossier = async (req, res, next) => {
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
       .where("dossier_num", "=", req.body.id)
       .then(async (dossier) => {
+        if (dossier.length === 0) {
+          await res.status(200).json({
+            success: false,
+            data: [],
+            nbrpaxforhbtype: [],
+            circuits: []
+          });
+        }
         const circuits = await knex
           .distinct(
             'city.name as city',
@@ -268,8 +263,6 @@ exports.getDossier = async (req, res, next) => {
 
 exports.getDossiers = async (req, res, next) => {
   try {
-    const start_at = new Date(req.body.starts_at).setHours(0, 0, 0, 0);
-    const end_at = new Date(req.body.ends_at).setHours(0, 0, 0, 0);
     const select = knex
       .distinct(
         'dossier.dossier_num as dossierNum',
@@ -293,9 +286,7 @@ exports.getDossiers = async (req, res, next) => {
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
       .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
-      .where('dossier_hotel.start_date', '>=', new Date(start_at))
-      .andWhere('dossier_hotel.end_date', '<=', new Date(end_at))
-      .orderBy('dossier_hotel.start_date', 'asc')
+      .orderBy('dossier_hotel.start_date', 'asc');
 
     const selectCiructs = async (data) => {
       const newDataSet = []
@@ -304,9 +295,15 @@ exports.getDossiers = async (req, res, next) => {
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", item.dossierNum);
           newDataSet.push({ ...item, nbrpaxforhbtype })
           if (index === data.length - 1) {
+            const newData = [];
+            newDataSet.forEach((item) => {
+              if (moment(new Date(item.startAt)).isSameOrAfter(new Date(req.body.starts_at), "day") && moment(new Date(item.startAt)).isSameOrBefore(new Date(req.body.ends_at), "day")) {
+                newData.push(item);
+              }
+            });
             return await res.status(200).json({
               success: true,
-              dossiers: newDataSet.sort(function (a, b) {
+              dossiers: newData.sort(function (a, b) {
                 return new Date(a.startAt) - new Date(b.startAt);
               })
             });

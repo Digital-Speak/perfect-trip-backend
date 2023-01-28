@@ -1,4 +1,5 @@
 const knex = require('../../db');
+const moment = require("moment");
 
 exports.addFlight = async (req, res, next) => {
   try {
@@ -15,16 +16,16 @@ exports.addFlight = async (req, res, next) => {
       from_end: req.body.from_end,
       to_end: req.body.to_end,
       from_to_end: req.body.from_to_end,
-      flight_time_end: req.body.flight_time_end,   
-      flight_date_end: new Date(String(req.body.flight_date_end).split(' ').slice(0, 3).join(' ')),
-      flight_date_start: new Date(String(req.body.flight_date_start).split(' ').slice(0, 3).join(' ')),   
+      flight_time_end: req.body.flight_time_end,
+      flight_date_end: moment(new Date(req.body.flight_date_end)).format("YYYY-M-D"),
+      flight_date_start: moment(new Date(req.body.flight_date_start)).format("YYYY-M-D"),
     }).then(() => {
-      if(!req.body.isFromDossier){
+      if (!req.body.isFromDossier) {
         res.status(200).json({
           success: true,
           message: "Flight added successfully",
         });
-      }     
+      }
     });
   } catch (error) {
     console.log(error);
@@ -118,7 +119,7 @@ exports.getFlights = async (req, res, next) => {
       .leftJoin('city as city1', 'city1.id', '=', 'flight.city_id_start')
       .leftJoin('dossier as dossier', 'dossier.dossier_num', '=', 'flight.dossier_id')
       .leftJoin('client as client', 'client.id', '=', 'dossier.client_id')
-      .orderBy('flightId','desc')
+      .orderBy('flightId', 'desc')
       .then(async (flight) => {
         if (flight.length === 0) {
           return res.status(400).json({
@@ -132,11 +133,11 @@ exports.getFlights = async (req, res, next) => {
               'city2.name as cityName2',
             )
             .leftJoin('city as city2', 'city2.id', '=', 'flight.city_id_end')
-            .orderBy('flightId2','desc')
+            .orderBy('flightId2', 'desc')
             .then((secondRes) => {
               const flights = [];
               flight.forEach((element, index) => {
-                  flights.push({...element, cityName2: secondRes[index].cityName2})
+                flights.push({ ...element, cityName2: secondRes[index].cityName2 })
               });
               return res.status(200).json({
                 success: true,
