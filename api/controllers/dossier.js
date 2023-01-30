@@ -32,8 +32,8 @@ exports.addDossier = async (req, res, next) => {
       newClient.then(async (client) => {
         const newDossier = new Dossier({
           dossier_num: req.body.dossier_num,
-          starts_at: moment(new Date(new Date(req.body.starts_at).setHours(new Date(req.body.starts_at).getHours() + 1))).format("YYYY-M-D"),
-          ends_at: moment(new Date(new Date(req.body.ends_at).setHours(new Date(req.body.ends_at).getHours() + 1))).format("YYYY-M-D"),
+          starts_at: moment(new Date(new Date(req.body.starts_at).setHours(new Date(req.body.starts_at).getHours() + 1))).format("YYYY-MM-DD"),
+          ends_at: moment(new Date(new Date(req.body.ends_at).setHours(new Date(req.body.ends_at).getHours() + 1))).format("YYYY-MM-DD"),
           circuit_id: circ_id,
           agency_id: req.body.agency_id,
           pax_num: req.body.nbrPax,
@@ -53,19 +53,27 @@ exports.addDossier = async (req, res, next) => {
               let hotel_id = hotelForFolder.hotel_id;
               let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
               let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
-
+              console.log({
+                dossier_id: hotelForFolder.dossier_num,
+                extra_nights: hotelForFolder.extra_nights,
+                hotel_id: hotel_id,
+                start_date: moment(hotelForFolderFrom).format("YYYY-MM-DD"),
+                end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
+                type_regime: hotelForFolder.regime
+              });
+              return;
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
                   extra_nights: hotelForFolder.extra_nights,
                   hotel_id: hotel_id,
-                  start_date: moment(new Date(new Date(hotelForFolderFrom).setHours(new Date(hotelForFolderFrom) + 1))).format("YYYY-M-D"),
-                  end_date: moment(new Date(new Date(hotelForFolderTo).setHours(new Date(hotelForFolderTo) + 1))).format("YYYY-M-D"),
+                  start_date: moment(hotelForFolderFrom).format("YYYY-MM-DD"),
+                  end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
                   type_regime: hotelForFolder.regime
                 }).then(async () => {
                   if (parseInt(req.body.circuit_id) === -99) {
-                    const a = moment(moment(new Date(hotelForFolderFrom)).format("YYYY-M-D"));
-                    const b = moment(moment(new Date(hotelForFolderTo)).format("YYYY-M-D"));
+                    const a = moment(moment(new Date(hotelForFolderFrom)).format("YYYY-MM-DD"));
+                    const b = moment(moment(new Date(hotelForFolderTo)).format("YYYY-MM-DD"));
                     const number_of_nights = b.diff(a, 'days');
                     await knex('circuit_city').insert({
                       circuit_id: circ_id,
