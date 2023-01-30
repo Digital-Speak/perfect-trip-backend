@@ -5,9 +5,9 @@ exports.addCircuit = async (req, res, next) => {
   try {
     await knex('circuit')
       .where('name', req.body.name)
-      .select("*").then(async (circuit) => {
+      .select("*")
+      .then(async (circuit) => {
         if (circuit.length !== 0) {
-          console.log('Circuit already exist');
           return res.status(500).json({
             success: false,
             message: "Circuit already exist",
@@ -92,7 +92,9 @@ exports.editCircuit = async (req, res, next) => {
 exports.getCircuits = async (req, res, next) => {
   try {
     await knex('circuit')
-      .select("*").then(async (circuits) => {
+      .select("*")
+      .where("is_special", "=", false)
+      .then(async (circuits) => {
         if (circuits.length === 0) {
           return res.status(400).json({
             success: false,

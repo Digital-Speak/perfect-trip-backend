@@ -1,4 +1,5 @@
 const Dossier = require("../models/Dossier");
+const Circuit = require("../models/Circuit");
 const flightController = require('./flight');
 const knex = require('../../db');
 const client = require('./client');
@@ -6,14 +7,35 @@ const moment = require("moment");
 
 exports.addDossier = async (req, res, next) => {
   try {
+    let circ_id = req.body.circuit_id
+    if (parseInt(req.body.circuit_id) === -99) {
+      await knex('circuit')
+        .where('name', req.body.circuit_name)
+        .select("*")
+        .where("is_special", "=", true)
+        .then(async (circuit) => {
+          if (circuit.length !== 0) {
+            circ_id = circuit[0]?.id
+          } else {
+            const newCircuit = new Circuit({ name: req.body.circuit_name, created_at: new Date(), updated_at: new Date() });
+            await knex('circuit').insert(newCircuit).returning("*").then((data) => {
+              if (data.length != 0) {
+                circ_id = data[0].id
+              }
+            });
+          }
+        });
+    }
+
     const newClient = client.addClient(req, res);
     if (newClient) {
       newClient.then(async (client) => {
+        console.log(circ_id)
         const newDossier = new Dossier({
           dossier_num: req.body.dossier_num,
           starts_at: moment(new Date(req.body.starts_at)).format("YYYY-M-D"),
           ends_at: moment(new Date(req.body.ends_at)).format("YYYY-M-D"),
-          circuit_id: req.body.circuit_id,
+          circuit_id: circ_id,
           agency_id: req.body.agency_id,
           pax_num: req.body.nbrPax,
           note: req.body.note,
@@ -30,13 +52,23 @@ exports.addDossier = async (req, res, next) => {
             await flightController.addFlight(req, res, next);
             req.body.hotels_dossier.forEach(async (hotelForFolder) => {
               let hotel_id = hotelForFolder.hotel_id;
+              let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
+              let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
+              console.log({
+                dossier_id: hotelForFolder.dossier_num,
+                extra_nights: hotelForFolder.extra_nights,
+                hotel_id: hotel_id,
+                start_date: moment(new Date(hotelForFolderFrom)).format("YYYY-M-D"),
+                end_date: moment(new Date(hotelForFolderTo)).format("YYYY-M-D"),
+                type_regime: hotelForFolder.regime
+              })
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
                   extra_nights: hotelForFolder.extra_nights,
                   hotel_id: hotel_id,
-                  start_date: moment(new Date(hotelForFolder.from)).format("YYYY-M-D"),
-                  end_date: moment(new Date(hotelForFolder.to)).format("YYYY-M-D"),
+                  start_date: moment(new Date(hotelForFolderFrom)).format("YYYY-M-D"),
+                  end_date: moment(new Date(hotelForFolderTo)).format("YYYY-M-D"),
                   type_regime: hotelForFolder.regime
                 }).then(async () => {
                 });
