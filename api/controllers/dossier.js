@@ -32,8 +32,8 @@ exports.addDossier = async (req, res, next) => {
       newClient.then(async (client) => {
         const newDossier = new Dossier({
           dossier_num: req.body.dossier_num,
-          starts_at: moment(new Date(req.body.starts_at)).format("YYYY-M-D"),
-          ends_at: moment(new Date(req.body.ends_at)).format("YYYY-M-D"),
+          starts_at: moment(new Date(new Date(req.body.starts_at).setHours(new Date(req.body.starts_at).getHours() + 1))).format("YYYY-M-D"),
+          ends_at: moment(new Date(new Date(req.body.ends_at).setHours(new Date(req.body.ends_at).getHours() + 1))).format("YYYY-M-D"),
           circuit_id: circ_id,
           agency_id: req.body.agency_id,
           pax_num: req.body.nbrPax,
@@ -59,8 +59,8 @@ exports.addDossier = async (req, res, next) => {
                   dossier_id: hotelForFolder.dossier_num,
                   extra_nights: hotelForFolder.extra_nights,
                   hotel_id: hotel_id,
-                  start_date: moment(new Date(hotelForFolderFrom)).format("YYYY-M-D"),
-                  end_date: moment(new Date(hotelForFolderTo)).format("YYYY-M-D"),
+                  start_date: moment(new Date(new Date(hotelForFolderFrom).setHours(new Date(hotelForFolderFrom) + 1))).format("YYYY-M-D"),
+                  end_date: moment(new Date(new Date(hotelForFolderTo).setHours(new Date(hotelForFolderTo) + 1))).format("YYYY-M-D"),
                   type_regime: hotelForFolder.regime
                 }).then(async () => {
                   if (parseInt(req.body.circuit_id) === -99) {
