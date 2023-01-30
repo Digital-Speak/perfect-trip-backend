@@ -18,7 +18,7 @@ exports.addDossier = async (req, res, next) => {
             circ_id = circuit[0]?.id
           } else {
             const newCircuit = new Circuit({ name: req.body.circuit_name, created_at: new Date(), updated_at: new Date() });
-            await knex('circuit').insert(newCircuit).returning("*").then((data) => {
+            await knex('circuit').insert({ ...newCircuit, is_special: true }).returning("*").then((data) => {
               if (data.length != 0) {
                 circ_id = data[0].id
               }
@@ -30,7 +30,6 @@ exports.addDossier = async (req, res, next) => {
     const newClient = client.addClient(req, res);
     if (newClient) {
       newClient.then(async (client) => {
-        console.log(circ_id)
         const newDossier = new Dossier({
           dossier_num: req.body.dossier_num,
           starts_at: moment(new Date(req.body.starts_at)).format("YYYY-M-D"),
@@ -54,14 +53,7 @@ exports.addDossier = async (req, res, next) => {
               let hotel_id = hotelForFolder.hotel_id;
               let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
               let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
-              console.log({
-                dossier_id: hotelForFolder.dossier_num,
-                extra_nights: hotelForFolder.extra_nights,
-                hotel_id: hotel_id,
-                start_date: moment(new Date(hotelForFolderFrom)).format("YYYY-M-D"),
-                end_date: moment(new Date(hotelForFolderTo)).format("YYYY-M-D"),
-                type_regime: hotelForFolder.regime
-              })
+
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
@@ -71,6 +63,16 @@ exports.addDossier = async (req, res, next) => {
                   end_date: moment(new Date(hotelForFolderTo)).format("YYYY-M-D"),
                   type_regime: hotelForFolder.regime
                 }).then(async () => {
+                  if (parseInt(req.body.circuit_id) === -99) {
+                    const a = moment(moment(new Date(hotelForFolderFrom)).format("YYYY-M-D"));
+                    const b = moment(moment(new Date(hotelForFolderTo)).format("YYYY-M-D"));
+                    const number_of_nights = b.diff(a, 'days');
+                    await knex('circuit_city').insert({
+                      circuit_id: circ_id,
+                      city_id: hotelForFolder.cityId,
+                      number_of_nights: number_of_nights,
+                    })
+                  }
                 });
             });
             req.body.typeOfHb.forEach(async (item) => {
@@ -212,15 +214,22 @@ exports.getDossier = async (req, res, next) => {
               'city.id as city_id',
               'circuit_city.number_of_nights as number_of_nights',
               'dossier_hotel.type_regime as regime',
-              'circuit_city.id'
+              'circuit_city.id',
+              'dossier_hotel.dossier_id',
             )
             .from('dossier_hotel')
             .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
             .leftJoin('city', 'city.id', '=', 'hotel.city_id')
             .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
             .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum)
-            .orderBy("circuit_city.id", "asc")
+            .orderBy("circuit_city.id", "asc");
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
+          console.log({
+            success: true,
+            data: dossier,
+            nbrpaxforhbtype: nbrpaxforhbtype,
+            circuits: circuits
+          })
           await res.status(200).json({
             success: true,
             data: dossier,

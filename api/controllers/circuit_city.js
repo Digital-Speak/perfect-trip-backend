@@ -39,6 +39,7 @@ exports.getCircuitCity = async (req, res, next) => {
       .leftJoin('city', 'city.id', '=', 'circuit_city.city_id')
       .leftJoin('circuit', 'circuit.id', '=', 'circuit_city.circuit_id')
       .leftJoin('hotel', 'hotel.city_id', '=', 'city.id')
+      .where("circuit.is_special", "=", false)
       .returning("*")
       .then(async (response) => {
         res.status(200).send({
