@@ -61,7 +61,6 @@ exports.addDossier = async (req, res, next) => {
                 end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
                 type_regime: hotelForFolder.regime
               });
-              return;
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
