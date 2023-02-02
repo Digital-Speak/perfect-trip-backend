@@ -18,6 +18,7 @@ const flightRoutes = require("./api/routes/flight");
 const circuitRoutes = require("./api/routes/circuit");
 const circuitCityRoutes = require("./api/routes/circuit_city");
 const globalRoutes = require("./api/routes/global");
+const importDataRoutes = require("./api/routes/import");
 
 
 // morgan to log in our dev environment
@@ -56,6 +57,7 @@ app.use("/circuit", circuitRoutes);
 app.use("/dossier", dossierRoutes);
 app.use("/flight", flightRoutes);
 app.use("/circuit_city", circuitCityRoutes);
+app.use("/import", importDataRoutes);
 
 // Error handling
 app.use((req, res, next)=>{
