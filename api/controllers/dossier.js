@@ -53,14 +53,6 @@ exports.addDossier = async (req, res, next) => {
               let hotel_id = hotelForFolder.hotel_id;
               let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
               let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
-              console.log({
-                dossier_id: hotelForFolder.dossier_num,
-                extra_nights: hotelForFolder.extra_nights,
-                hotel_id: hotel_id,
-                start_date: moment(hotelForFolderFrom).format("YYYY-MM-DD"),
-                end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
-                type_regime: hotelForFolder.regime
-              });
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: hotelForFolder.dossier_num,
@@ -219,24 +211,20 @@ exports.getDossier = async (req, res, next) => {
               'hotel.name as hotel',
               'hotel.id as hotel_id',
               'city.id as city_id',
-              'circuit_city.number_of_nights as number_of_nights',
               'dossier_hotel.type_regime as regime',
-              'circuit_city.id',
               'dossier_hotel.dossier_id',
+              'dossier_hotel.start_date',
+              'dossier_hotel.end_date',
             )
             .from('dossier_hotel')
             .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
             .leftJoin('city', 'city.id', '=', 'hotel.city_id')
             .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
             .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum)
-            .orderBy("circuit_city.id", "asc");
+            .orderBy("city.id", "asc");
+            
+          console.log(circuits.length)
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
-          console.log({
-            success: true,
-            data: dossier,
-            nbrpaxforhbtype: nbrpaxforhbtype,
-            circuits: circuits
-          })
           await res.status(200).json({
             success: true,
             data: dossier,
