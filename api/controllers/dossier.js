@@ -195,9 +195,9 @@ exports.getDossier = async (req, res, next) => {
       .leftJoin('agency', 'agency.id', '=', 'dossier.agency_id')
       .leftJoin('flight', 'flight.dossier_id', '=', 'dossier.dossier_num')
       .leftJoin('circuit', 'circuit.id', '=', 'dossier.circuit_id')
-      .where("dossier_num", "=", req.body.id)
+      .where("client.ref_client", "like", `%${req?.body?.ref_client}%`)
       .then(async (dossier) => {
-        if (dossier[0].dossierNum == undefined) {
+        if (dossier[0]?.dossierNum == undefined) {
           await res.status(200).json({
             success: false,
             data: [],
@@ -222,8 +222,7 @@ exports.getDossier = async (req, res, next) => {
             .leftJoin('circuit_city', 'circuit_city.city_id', '=', 'city.id')
             .where("dossier_hotel.dossier_id", "=", dossier[0].dossierNum)
             .orderBy("city.id", "asc");
-            
-          console.log(circuits.length)
+
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype').where("dossier_id", "=", dossier[0].dossierNum);
           await res.status(200).json({
             success: true,
