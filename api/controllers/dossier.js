@@ -267,26 +267,29 @@ exports.getDossiers = async (req, res, next) => {
       .leftJoin('hotel', 'hotel.id', '=', 'dossier_hotel.hotel_id')
       .leftJoin('city', 'city.id', '=', 'hotel.city_id')
       .orderBy('dossier_hotel.start_date', 'asc');
-
     const selectCiructs = async (data) => {
       const newDataSet = []
       if (data?.length !== 0) {
+        console.log(273, data.length);
         data?.forEach(async (item, index) => {
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype')
             .where("dossier_id", "=", item.dossierNum);
           newDataSet.push({ ...item, nbrpaxforhbtype })
           if (index === data.length - 1) {
             const newData = [];
-            newDataSet.forEach((item) => {
+            newDataSet.forEach(async (item, index2) => {
               if (moment(new Date(item.startAt)).isSameOrAfter(new Date(req.body.starts_at), "day") && moment(new Date(item.startAt)).isSameOrBefore(new Date(req.body.ends_at), "day")) {
                 newData.push(item);
               }
-            });
-            return await res.status(200).json({
-              success: true,
-              dossiers: newData.sort(function (a, b) {
-                return new Date(a.startAt) - new Date(b.startAt);
-              })
+
+              if (index2 === data.length - 1) {
+                return await res.status(200).json({
+                  success: true,
+                  dossiers: newData.sort(function (a, b) {
+                    return new Date(a.startAt) - new Date(b.startAt);
+                  })
+                });
+              }
             });
           }
         })
