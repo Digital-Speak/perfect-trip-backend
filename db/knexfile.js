@@ -1,5 +1,6 @@
 const fs = require("fs");
 const pg = require('pg');
+require("dotenv").config()
 
 if (process.env.NODE_ENV != "development") {
   pg.defaults.ssl = {

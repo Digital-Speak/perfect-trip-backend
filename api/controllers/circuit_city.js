@@ -2,6 +2,11 @@ const knex = require('../../db');
 
 exports.addCircuitCity = async (req, res, next) => {
   try {
+    console.log({
+      circuit_id: req.body.circuit_id,
+      city_id: req.body.city_id,
+      number_of_nights: req.body.number_of_nights,
+    });
     await knex('circuit_city')
       .insert({
         circuit_id: req.body.circuit_id,

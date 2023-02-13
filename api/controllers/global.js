@@ -3,8 +3,6 @@ const Crypto = require('crypto')
 const knex = require('../../db');
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const sendEmail = require('../../tools/mails/reservationMail');
-const forgotPasswordEmail = require('../../tools/mails/forgotPasswordMail');
 const { createAccessToken } = require("../../tools/helpers/createJWTtoken");
 const { createJWTRefreshTokencookie } = require("../../tools/helpers/createCookie");
 require("dotenv").config();

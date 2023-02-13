@@ -2,9 +2,7 @@ const User = require("../models/User");
 const Crypto = require('crypto')
 const knex = require('../../db');
 const bcrypt = require("bcrypt");
-const sendEmail = require('../../tools/mails/reservationMail');
-const forgotPasswordEmail = require('../../tools/mails/forgotPasswordMail');
-var sender = require("../../tools/mails/testMail");
+const forgotPasswordEmail = require('../../tools/helpers/forgotPasswordMail');
 const { createAccessToken } = require("../../tools/helpers/createJWTtoken");
 const { createJWTRefreshTokencookie } = require("../../tools/helpers/createCookie");
 

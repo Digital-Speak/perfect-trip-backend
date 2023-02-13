@@ -1,5 +1,5 @@
 require("dotenv").config();
-var nodemailer = require('nodemailer');
+const nodemailer = require('nodemailer');
 
 module.exports = async function SendEmail(email, name, token) {
   var transporter = nodemailer.createTransport({

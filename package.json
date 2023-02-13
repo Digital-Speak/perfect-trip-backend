@@ -4,8 +4,7 @@
   "description": "perfect-trip backend",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": " DEBUG=express:* nodemon server.js"
   },
   "repository": {
     "type": "git",
@@ -16,7 +15,7 @@
     "express",
     "jwt"
   ],
-  "author": "digitalSpeak",
+  "author": "Said Gouzal && Nabil Cambiaso",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Digital-Speak/perfect-trip-backend/issues"
@@ -30,9 +29,11 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
+    "debug": "^4.3.4",
     "dotenv": "^16.0.3",
     "express": "^4.18.1",
-    "jsonwebtoken": "^8.5.1",
+    "helmet": "^6.0.1",
+    "jsonwebtoken": "^9.0.0",
     "knex": "^2.3.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
@@ -41,5 +42,9 @@
     "nodemailer": "^6.9.0",
     "nodemon": "^2.0.20",
     "pg": "^8.8.0"
+  },
+  "devDependencies": {
+    "pino": "^8.10.0",
+    "pino-pretty": "^9.2.0"
   }
 }

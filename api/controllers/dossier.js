@@ -102,9 +102,69 @@ exports.addDossier = async (req, res, next) => {
   }
 };
 
-exports.updateDossier = async (req, res, next) => {
+exports.update = async (req, res, next) => {
   try {
+    const getClient = await knex("client").where({
+      ref_client: req?.body?.new_ref_client
+    });
 
+    const getFolder = await knex("dossier").where({
+      dossier_num: req.body.dossier_num
+    });
+
+    if (getClient.length != 0 || getFolder.length != 0) {
+      const updatedClient = await client.updateCilent(req, res);
+      if (updatedClient) {
+        const updatedDossier = await knex("dossier").where({
+          dossier_num: req.body.dossier_num
+        }).update({
+          starts_at: moment(new Date(new Date(req.body.starts_at).setHours(new Date(req.body.starts_at).getHours() + 1))).format("YYYY-MM-DD"),
+          circuit_id: req?.body?.circuit_id,
+          agency_id: req?.body?.agency_id,
+          pax_num: req?.body?.nbrPax,
+          note: req?.body?.note,
+        }).returning("dossier_num");
+
+        if (updatedDossier.length !== 0) {
+          req.body.dossier_id = updatedDossier[0].dossier_num
+          await flightController.editFlight(req);
+          await req.body.hotels_dossier.forEach(async (hotelForFolder) => {
+            // let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
+            // let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
+            // await knex('dossier_hotel')
+            //   .update({
+            //     hotel_id: hotelForFolder.hotel_id,
+            //     type_regime: hotelForFolder.regime,
+            //     start_date: moment(hotelForFolderFrom).format("YYYY-MM-DD"),
+            //     end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
+            //   })
+            //   .where({
+            //     id: hotelForFolder.id,
+            //     dossier_id: hotelForFolder.dossier_num,
+            //   });
+          });
+          await req?.body?.typeOfHb?.forEach(async (item) => {
+            await knex('nbrpaxforhbtype')
+              .update({
+                nbr: item?.nbr,
+              }).where({
+                dossier_id: req.body.dossier_id,
+                typepax: item?.label,
+              })
+          });
+
+          return res.status(200).json({
+            success: true,
+            message: "Dossier added successfully",
+          });
+        }
+      }
+    } else {
+      return res.status(200).json({
+        status: false,
+        message: "There is no user with th given ref " + req?.body?.ref_client
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({
@@ -213,6 +273,7 @@ exports.getDossier = async (req, res, next) => {
               'city.id as city_id',
               'dossier_hotel.type_regime as regime',
               'dossier_hotel.dossier_id',
+              'dossier_hotel.id as dossier_hotel_id',
               'dossier_hotel.start_date',
               'dossier_hotel.end_date',
             )
@@ -270,11 +331,10 @@ exports.getDossiers = async (req, res, next) => {
     const selectCiructs = async (data) => {
       const newDataSet = []
       if (data?.length !== 0) {
-        console.log(273, data.length);
         data?.forEach(async (item, index) => {
           const nbrpaxforhbtype = await knex.select('typepax', 'nbr').from('nbrpaxforhbtype')
             .where("dossier_id", "=", item.dossierNum);
-          newDataSet.push({ ...item, nbrpaxforhbtype })
+          newDataSet.push({ ...item, nbrpaxforhbtype });
           if (index === data.length - 1) {
             const newData = [];
             newDataSet.forEach(async (item, index2) => {
@@ -282,7 +342,8 @@ exports.getDossiers = async (req, res, next) => {
                 newData.push(item);
               }
 
-              if (index2 === data.length - 1) {
+              if (index2 === newDataSet.length - 1) {
+                console.log(newDataSet);
                 return await res.status(200).json({
                   success: true,
                   dossiers: newData.sort(function (a, b) {
@@ -300,7 +361,6 @@ exports.getDossiers = async (req, res, next) => {
         });
       }
     }
-
     if (req.body.city_id == -1 && req.body.hotel_id == -1) {
       await select.where('dossier.deleted', "!=", "true").then(selectCiructs);
     } else
@@ -324,7 +384,7 @@ exports.getDossiers = async (req, res, next) => {
 
 exports.getListDossiers = async (req, res, next) => {
   try {
-    const select = knex
+    const select = await knex
       .distinct(
         'dossier.dossier_num as dossier_num',
         'dossier.starts_at as startAt',

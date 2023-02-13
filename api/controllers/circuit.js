@@ -5,8 +5,12 @@ exports.addCircuit = async (req, res, next) => {
   try {
     await knex('circuit')
       .where('name', req.body.name)
+      .andWhere({
+        is_special: false
+      })
       .select("*")
       .then(async (circuit) => {
+        console.log(circuit);
         if (circuit.length !== 0) {
           return res.status(500).json({
             success: false,
@@ -14,9 +18,10 @@ exports.addCircuit = async (req, res, next) => {
           });
         } else {
           const newCircuit = new Circuit({ name: req.body.name, created_at: new Date(), updated_at: new Date() });
-          await knex('circuit').insert(newCircuit).then(() => {
+          await knex('circuit').insert(newCircuit).returning("*").then((data) => {
             return res.status(200).json({
               success: true,
+              circuit: data,
               message: "Circuit added successfully",
             });
           });
