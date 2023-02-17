@@ -8,7 +8,7 @@ module.exports = class Dossier {
   created_at = null;
   updated_at = null;
 
-  constructor({ dossier_num, starts_at, ends_at, circuit_id, agency_id, client_id, created_at, updated_at, note }) {
+  constructor({ dossier_num, starts_at, ends_at, circuit_id, agency_id, client_id, created_at, updated_at, note, pax_num }) {
     this.dossier_num = dossier_num;
     this.starts_at = starts_at;
     this.ends_at = ends_at;
@@ -18,5 +18,7 @@ module.exports = class Dossier {
     this.created_at = created_at;
     this.updated_at = updated_at;
     this.note = note;
+    this.pax_num = pax_num;
+    
   }
 }

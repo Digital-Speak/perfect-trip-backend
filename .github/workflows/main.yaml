@@ -37,5 +37,5 @@ jobs:
           echo MAINEMAIL =${{ secrets.MAINEMAIL }} >> .env
           echo MAINEMAILPASS =${{ secrets.MAINEMAILPASS }} >> .env
       - run: npm i
-      - run: sudo pm2 restart server
+      - run: pm2 restart server
  

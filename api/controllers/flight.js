@@ -39,22 +39,24 @@ exports.addFlight = async (req, res, next) => {
 
 exports.editFlight = async (req) => {
   try {
-    return await knex('flight').update({
-      city_id_start: req.body.city_id_start,
-      from_start: req.body.from_start,
-      to_start: req.body.to_start,
-      flight_start: req.body.flight_start,
-      flight_time_start: req.body.flight_time_start,
-      from_to_start: req.body.from_to_start,
-      city_id_end: req.body.city_id_end,
-      flight_end: req.body.flight_end,
-      from_end: req.body.from_end,
-      to_end: req.body.to_end,
-      from_to_end: req.body.from_to_end,
-      flight_time_end: req.body.flight_time_end,
-      flight_date_end: moment(new Date(new Date(req.body.flight_date_end).setHours(new Date(req.body.flight_date_end).getHours() + 1))).format("YYYY-MM-DD"),
-      flight_date_start: moment(new Date(new Date(req.body.flight_date_start).setHours(new Date(req.body.flight_date_start).getHours() + 1))).format("YYYY-MM-DD"),
-    }).where({ dossier_id: req.body.dossier_id });
+    return await knex('flight')
+      .update({
+        city_id_start: req.body.city_id_start,
+        from_start: req.body.from_start,
+        to_start: req.body.to_start,
+        flight_start: req.body.flight_start,
+        flight_time_start: req.body.flight_time_start,
+        from_to_start: req.body.from_to_start,
+        city_id_end: req.body.city_id_end,
+        flight_end: req.body.flight_end,
+        from_end: req.body.from_end,
+        to_end: req.body.to_end,
+        from_to_end: req.body.from_to_end,
+        flight_time_end: req.body.flight_time_end,
+        flight_date_end: moment(new Date(new Date(req.body.flight_date_end).setHours(new Date(req.body.flight_date_end).getHours() + 1))).format("YYYY-MM-DD"),
+        flight_date_start: moment(new Date(new Date(req.body.flight_date_start).setHours(new Date(req.body.flight_date_start).getHours() + 1))).format("YYYY-MM-DD"),
+      })
+      .where({ dossier_id: req.body.dossier_id });
   } catch (error) {
     console.log(error);
   }

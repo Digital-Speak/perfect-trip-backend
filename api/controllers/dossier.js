@@ -126,9 +126,9 @@ exports.update = async (req, res, next) => {
         }).returning("dossier_num");
 
         if (updatedDossier.length !== 0) {
-          req.body.dossier_id = updatedDossier[0].dossier_num
+          req.body.dossier_id = updatedDossier[0].dossier_num;
           await flightController.editFlight(req);
-          await req.body.hotels_dossier.forEach(async (hotelForFolder) => {
+          // await req.body.hotels_dossier.forEach(async (hotelForFolder) => {
             // let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
             // let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
             // await knex('dossier_hotel')
@@ -142,7 +142,7 @@ exports.update = async (req, res, next) => {
             //     id: hotelForFolder.id,
             //     dossier_id: hotelForFolder.dossier_num,
             //   });
-          });
+          // });
           await req?.body?.typeOfHb?.forEach(async (item) => {
             await knex('nbrpaxforhbtype')
               .update({
@@ -343,7 +343,6 @@ exports.getDossiers = async (req, res, next) => {
               }
 
               if (index2 === newDataSet.length - 1) {
-                console.log(newDataSet);
                 return await res.status(200).json({
                   success: true,
                   dossiers: newData.sort(function (a, b) {
