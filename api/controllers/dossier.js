@@ -129,19 +129,19 @@ exports.update = async (req, res, next) => {
           req.body.dossier_id = updatedDossier[0].dossier_num;
           await flightController.editFlight(req);
           // await req.body.hotels_dossier.forEach(async (hotelForFolder) => {
-            // let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
-            // let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
-            // await knex('dossier_hotel')
-            //   .update({
-            //     hotel_id: hotelForFolder.hotel_id,
-            //     type_regime: hotelForFolder.regime,
-            //     start_date: moment(hotelForFolderFrom).format("YYYY-MM-DD"),
-            //     end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
-            //   })
-            //   .where({
-            //     id: hotelForFolder.id,
-            //     dossier_id: hotelForFolder.dossier_num,
-            //   });
+          // let hotelForFolderFrom = new Date(hotelForFolder.from).setHours(new Date(hotelForFolder.from).getHours() + 1)
+          // let hotelForFolderTo = new Date(hotelForFolder.to).setHours(new Date(hotelForFolder.to).getHours() + 1)
+          // await knex('dossier_hotel')
+          //   .update({
+          //     hotel_id: hotelForFolder.hotel_id,
+          //     type_regime: hotelForFolder.regime,
+          //     start_date: moment(hotelForFolderFrom).format("YYYY-MM-DD"),
+          //     end_date: moment(hotelForFolderTo).format("YYYY-MM-DD"),
+          //   })
+          //   .where({
+          //     id: hotelForFolder.id,
+          //     dossier_id: hotelForFolder.dossier_num,
+          //   });
           // });
           await req?.body?.typeOfHb?.forEach(async (item) => {
             await knex('nbrpaxforhbtype')

@@ -45,14 +45,16 @@ exports.addDossier = async (req, res, next) => {
             if (index == 0) {
               startAt = moment(new Date(new Date(req?.body?.starts_at))).format("YYYY-MM-DD");
               endAt = moment(new Date(new Date(req?.body?.starts_at)
-                .setHours(new Date(req?.body?.starts_at).getDate() + parseInt(grouped[key][0]?.number_of_nights)))).format("YYYY-MM-DD");
+                .setDate(new Date(req?.body?.starts_at).getDate() + parseInt(grouped[key][0]?.number_of_nights)))).format("YYYY-MM-DD");
               lastEndDate = endAt;
+
             }
             else {
               startAt = lastEndDate;
-              numberOfnights = parseInt(numberOfnights) + parseInt(grouped[key][0].number_of_nights);
+              // numberOfnights = parseInt(numberOfnights) + ;
               endAt = moment(new Date(new Date(lastEndDate)
-                .setHours(new Date(lastEndDate).getDate() + parseInt(numberOfnights)))).format("YYYY-MM-DD");
+                .setDate(new Date(lastEndDate).getDate() + parseInt(parseInt(grouped[key][0].number_of_nights))))).format("YYYY-MM-DD");
+
               lastEndDate = endAt;
             }
 

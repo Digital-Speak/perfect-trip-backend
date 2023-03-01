@@ -114,6 +114,7 @@ exports.getFlights = async (req, res, next) => {
         'city1.name as cityName1',
         'client.name as client_name',
         'client.ref_client as clientRef',
+        'dossier.pax_num as pax_num',
       )
       .leftJoin('city as city1', 'city1.id', '=', 'flight.city_id_start')
       .leftJoin('dossier as dossier', 'dossier.dossier_num', '=', 'flight.dossier_id')
