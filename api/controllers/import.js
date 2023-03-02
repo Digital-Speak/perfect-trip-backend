@@ -33,21 +33,32 @@ exports.addDossier = async (req, res, next) => {
             circuit_id: req.body.circuit_id,
             cat: req.body.category,
           });
+
           circuit_cities.sort((a, b) => parseInt(a.city_id) - parseInt(b.city_id));
 
-          let grouped = _.mapValues(_.groupBy(circuit_cities, 'city_id'), clist => clist.map(city => _.omit(city, 'city_id')));
+          let grouped = _.mapValues(_.groupBy(circuit_cities, 'circuit_city_id'), clist => clist.map(city => _.omit(city, 'circuit_city_id')));
+
           const keys = Object.keys(grouped);
 
           const dataSet = [];
           keys.forEach(async (key, index) => {
             let startAt;
             let endAt;
-            if (index == 0) {
+            if (parseInt(index) === 0) {
               startAt = moment(new Date(new Date(req?.body?.starts_at))).format("YYYY-MM-DD");
               endAt = moment(new Date(new Date(req?.body?.starts_at)
                 .setDate(new Date(req?.body?.starts_at).getDate() + parseInt(grouped[key][0]?.number_of_nights)))).format("YYYY-MM-DD");
               lastEndDate = endAt;
-
+              dataSet.push({
+                dossier_id: req.body.dossier_id,
+                extra_nights: 0,
+                city_id: grouped[key][0].city_id,
+                hotel_id: grouped[key][0].hotel_id,
+                hotel_name: grouped[key][0].hotel,
+                start_date: startAt,
+                end_date: endAt,
+                type_regime: "DP"
+              });
             }
             else {
               startAt = lastEndDate;
@@ -56,22 +67,24 @@ exports.addDossier = async (req, res, next) => {
                 .setDate(new Date(lastEndDate).getDate() + parseInt(parseInt(grouped[key][0].number_of_nights))))).format("YYYY-MM-DD");
 
               lastEndDate = endAt;
-            }
 
-            if (parseInt(key) === 17 || parseInt(key) === 18) {
-              if (req?.body?.desert === "SI") {
-                const hotels = await getHotels(17, req.body.category);
+              if (parseInt(index) === parseInt(keys.length - 1)) {
                 dataSet.push({
-                  dossier_id: req?.body?.dossier_id,
+                  dossier_id: req.body.dossier_id,
                   extra_nights: 0,
-                  city_id: 17,
-                  hotel_id: hotels[0]?.id,
-                  hotel_name: hotels[0]?.name,
+                  city_id: grouped[key][0].city_id,
+                  hotel_id: grouped[key][0].hotel_id,
+                  hotel_name: grouped[key][0].hotel,
                   start_date: startAt,
                   end_date: endAt,
                   type_regime: "DP"
                 });
+              }
+            }
 
+            if (parseInt(grouped[key][0].city_id) === 17 || parseInt(grouped[key][0].city_id) === 18) {
+              if (req?.body?.desert === "SI") {
+                const hotels = await getHotels(17, req.body.category);
                 await knex('dossier_hotel')
                   .insert({
                     dossier_id: req.body.dossier_id,
@@ -83,17 +96,6 @@ exports.addDossier = async (req, res, next) => {
                   });
               } else {
                 const hotels = await getHotels(18, req.body.category);
-                dataSet.push({
-                  dossier_id: req?.body?.dossier_id,
-                  extra_nights: 0,
-                  city_id: 18,
-                  hotel_id: hotels[0]?.id,
-                  hotel_name: hotels[0]?.name,
-                  start_date: startAt,
-                  end_date: endAt,
-                  type_regime: "DP"
-                });
-
                 await knex('dossier_hotel')
                   .insert({
                     dossier_id: req.body.dossier_id,
@@ -104,17 +106,8 @@ exports.addDossier = async (req, res, next) => {
                     type_regime: "DP",
                   });
               }
-            } else {
-              dataSet.push({
-                dossier_id: req.body.dossier_id,
-                extra_nights: 0,
-                city_id: key,
-                hotel_id: grouped[key][0].hotel_id,
-                hotel_name: grouped[key][0].hotel,
-                start_date: startAt,
-                end_date: endAt,
-                type_regime: "DP"
-              });
+            } else if (parseInt(grouped[key][0].city_id) !== 17 && parseInt(grouped[key][0].city_id) !== 18) {
+              await getHotels(grouped[key][0].city_id, req.body.category);
               await knex('dossier_hotel')
                 .insert({
                   dossier_id: req.body.dossier_id,
@@ -183,8 +176,8 @@ exports.addDossier = async (req, res, next) => {
             to_end: "Airport",
             from_to_end: "HOTEL / APT",
             flight_time_end: "00:00",
-            flight_date_end: dataSet[0].start_date,
-            flight_date_start: dataSet[dataSet.length - 1].end_date,
+            flight_date_end: dataSet[dataSet.length - 1].end_date,
+            flight_date_start: dataSet[0].start_date,
           };
 
           await flightController.addFlight(req, res, next);
@@ -200,7 +193,7 @@ exports.addDossier = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    console.log(req.body.dossier_num, error);
     return res.status(500).json({
       error,
     });
@@ -211,6 +204,7 @@ const getCircuitCity = async (req) => {
   try {
     return await knex
       .select(
+        "circuit_city.id as circuit_city_id",
         "circuit.id as circuit_id",
         "circuit.name as circuit",
         "city.id as city_id",
